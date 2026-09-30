@@ -1,0 +1,52 @@
+<header class="page-header">
+  <div><p class="eyebrow">OPERACIÓN</p><h1>Ventas</h1><p class="subheading">Registra transacciones y consulta su historial.</p></div>
+  <button class="primary-button" type="button" (click)="showForm = !showForm; errorMessage = ''">{{ showForm ? 'Cerrar formulario' : '＋ Nueva venta' }}</button>
+</header>
+
+<p class="notice success" *ngIf="successMessage" role="status">{{ successMessage }}</p>
+<p class="notice error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+<section class="content-card" *ngIf="showForm">
+  <div class="card-heading"><div><h2>Registrar venta</h2><p>El inventario se valida y actualiza al confirmar.</p></div></div>
+  <form #saleForm="ngForm" (ngSubmit)="submitSale()">
+    <label class="customer-field">Cliente
+      <select name="customerId" [(ngModel)]="customerId" required>
+        <option [ngValue]="null" disabled>Selecciona un cliente</option>
+        <option *ngFor="let customer of customers" [ngValue]="customer.id">{{ customer.fullName }} · {{ customer.documentNumber }}</option>
+      </select>
+    </label>
+    <div class="items-heading"><h3>Productos</h3><button class="secondary-button" type="button" (click)="addItem()">＋ Agregar línea</button></div>
+    <div class="sale-line" *ngFor="let item of items; let index = index">
+      <label class="product-field">Producto
+        <select [name]="'product-' + index" [(ngModel)]="item.productId" required>
+          <option [ngValue]="null" disabled>Selecciona un producto</option>
+          <option *ngFor="let product of products" [ngValue]="product.id" [disabled]="product.stock < 1">
+            {{ product.name }} · {{ product.stock }} disp. · {{ product.unitPrice | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+          </option>
+        </select>
+      </label>
+      <label class="quantity-field">Cantidad
+        <input [name]="'quantity-' + index" type="number" [(ngModel)]="item.quantity" min="1" step="1" required />
+      </label>
+      <button class="remove-button" type="button" (click)="removeItem(index)" [disabled]="items.length === 1" aria-label="Quitar línea">×</button>
+    </div>
+    <div class="subtotal">Subtotal estimado <strong>{{ estimatedSubtotal() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong><small>El total final incluye el impuesto configurado en el servidor.</small></div>
+    <div class="form-actions"><button class="primary-button" type="submit" [disabled]="saleForm.invalid || isSaving || !products.length || !customers.length">{{ isSaving ? 'Procesando…' : 'Confirmar venta' }}</button></div>
+  </form>
+</section>
+
+<section class="content-card">
+  <div class="toolbar"><div><h2>Historial de ventas</h2><p>{{ sales.length }} ventas registradas</p></div></div>
+  <div class="loading" *ngIf="isLoading">Cargando ventas…</div>
+  <div class="table-scroll" *ngIf="!isLoading && sales.length">
+    <table><thead><tr><th>Referencia</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th class="numeric">Total</th><th></th></tr></thead>
+      <tbody><tr *ngFor="let sale of sales">
+        <td class="reference">{{ sale.reference }}</td><td>{{ sale.customer }}</td>
+        <td>{{ sale.createdAtUtc | date:'d MMM y, h:mm a' }}</td><td><span class="status">{{ sale.status }}</span></td>
+        <td class="numeric">{{ sale.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+        <td class="actions"><a [href]="'/api/sales/' + sale.id + '/receipt'" target="_blank" rel="noopener">Recibo PDF</a></td>
+      </tr></tbody>
+    </table>
+  </div>
+  <div class="empty-state" *ngIf="!isLoading && !sales.length">Todavía no hay ventas registradas.</div>
+</section>

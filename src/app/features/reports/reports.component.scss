@@ -1,0 +1,27 @@
+:host { display: block; }
+.page-header { margin-bottom: 26px; }
+.eyebrow { margin: 0 0 8px; color: var(--accent); font-size: .7rem; letter-spacing: .15em; font-weight: 700; }
+h1 { margin: 0; font-size: 2rem; letter-spacing: -.04em; }
+.subheading { margin: 7px 0 0; color: var(--text-secondary); font-size: .86rem; }
+.report-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.content-card { padding: 24px; border: 1px solid var(--panel-border); border-radius: 15px; background: var(--surface); }
+.card-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; color: var(--accent-strong); background: var(--accent-soft); font-size: 1.15rem; }
+h2 { margin: 18px 0 8px; font-size: 1.08rem; }
+.content-card > p { color: var(--text-secondary); line-height: 1.55; font-size: .85rem; }
+.export-list { margin-top: 22px; }
+.export-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 15px 0; border-top: 1px solid var(--table-line); color: var(--text-primary); font-size: .87rem; }
+.export-row span { display: flex; gap: 9px; }
+.export-row a, .template-link { color: var(--accent-strong); text-decoration: none; font-weight: 600; }
+.export-row a:hover, .template-link:hover { text-decoration: underline; }
+.template-link { margin: 9px 0 19px; padding: 0; border: 0; background: none; cursor: pointer; }
+.file-picker { display: grid; gap: 8px; padding: 13px; border: 1px dashed var(--panel-border); border-radius: 9px; color: var(--text-secondary); background: var(--surface-raised); font-size: .8rem; }
+.file-picker input { color: var(--text-secondary); font-size: .78rem; }
+.selected-file { margin: 9px 0 0; overflow-wrap: anywhere; color: var(--text-secondary); }
+.primary-button { margin-top: 16px; border: 0; border-radius: 9px; padding: 10px 14px; color: white; background: linear-gradient(120deg, #458bd0, #2f70b5); font-weight: 600; cursor: pointer; }
+.primary-button:disabled { opacity: .55; cursor: not-allowed; }
+.notice { padding: 11px 14px; border-radius: 9px; font-size: .86rem; }
+.notice.error { color: #c44c58; background: rgba(196,76,88,.1); }
+.import-result { margin-top: 18px; padding: 13px; border: 1px solid var(--panel-border); border-radius: 9px; color: var(--text-secondary); background: var(--accent-soft); font-size: .84rem; }
+.import-result p { color: var(--text-secondary); }
+.issue-list ul { max-height: 180px; overflow: auto; padding-left: 20px; color: #bd7823; line-height: 1.6; }
+@media (max-width: 850px) { .report-grid { grid-template-columns: 1fr; } }

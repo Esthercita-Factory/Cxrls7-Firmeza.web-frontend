@@ -1,0 +1,48 @@
+<div class="admin-shell" [class.is-collapsed]="isCollapsed">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/dashboard" aria-label="Firmeza, ir al resumen">
+      <span class="brand-mark">F</span>
+      <span class="brand-copy"><strong>Firmeza</strong><small>Administración</small></span>
+    </a>
+
+    <p class="nav-label"><span>GESTIÓN</span></p>
+    <nav aria-label="Navegación principal">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" title="Resumen">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" /></svg></span><span class="nav-copy">Resumen</span>
+      </a>
+      <a routerLink="/products" routerLinkActive="active" title="Productos"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5zm-9 9 9 5 9-5m-18 4 9 5 9-5M12 13v8" /></svg></span><span class="nav-copy">Productos</span></a>
+      <a routerLink="/customers" routerLinkActive="active" title="Clientes"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" /><path d="M2 21v-2a7 7 0 0 1 14 0v2m2-13a4 4 0 0 1 0 8m2 2a6 6 0 0 1 2 4v1" /></svg></span><span class="nav-copy">Clientes</span></a>
+      <a routerLink="/sales" routerLinkActive="active" title="Ventas"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M7 14l4-4 4 3 6-7m-5 0h5v5" /></svg></span><span class="nav-copy">Ventas</span></a>
+      <a routerLink="/reports" routerLinkActive="active" title="Reportes"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7" /></svg></span><span class="nav-copy">Reportes</span></a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="signed-in">
+        <span class="avatar">{{ auth.currentUser()?.fullName?.charAt(0) || 'A' }}</span>
+        <span class="signed-in-text"><strong>{{ auth.currentUser()?.fullName }}</strong><small>Administrador</small></span>
+      </div>
+      <p class="error-message" *ngIf="logoutError" role="alert">{{ logoutError }}</p>
+      <button class="logout-button" type="button" (click)="logout()" [disabled]="isLoggingOut" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7" /></svg>
+        <span class="logout-copy">
+        {{ isLoggingOut ? 'Saliendo…' : 'Cerrar sesión' }}
+        </span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="workspace-bar">
+      <button class="icon-button menu-toggle" type="button" (click)="toggleNavigation()" [attr.aria-expanded]="!isCollapsed" [attr.aria-label]="isCollapsed ? 'Mostrar menú lateral' : 'Ocultar menú lateral'" [title]="isCollapsed ? 'Mostrar menú lateral' : 'Ocultar menú lateral'">
+        <span class="hamburger" [class.collapsed]="isCollapsed"><i></i><i></i><i></i></span>
+      </button>
+      <span class="workspace-caption">ESPACIO DE TRABAJO <span>·</span> FIRMEZA</span>
+      <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-pressed]="isDarkMode" [attr.aria-label]="isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'">
+        <span class="theme-icon" aria-hidden="true">{{ isDarkMode ? '☼' : '◐' }}</span>
+        <span>{{ isDarkMode ? 'Modo claro' : 'Modo oscuro' }}</span>
+        <span class="toggle-track" [class.enabled]="isDarkMode"><i></i></span>
+      </button>
+    </header>
+    <router-outlet></router-outlet>
+  </main>
+</div>

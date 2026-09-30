@@ -1,0 +1,42 @@
+<header class="page-header">
+  <div><p class="eyebrow">RELACIONES</p><h1>Clientes</h1><p class="subheading">Consulta y administra la información de tus clientes.</p></div>
+  <button class="primary-button" type="button" (click)="newCustomer()">＋ Nuevo cliente</button>
+</header>
+
+<p class="notice success" *ngIf="successMessage" role="status">{{ successMessage }}</p>
+<p class="notice error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+<section class="content-card" *ngIf="showForm">
+  <div class="card-heading"><div><h2>{{ editingId ? 'Editar cliente' : 'Nuevo cliente' }}</h2><p>Los campos con * son obligatorios.</p></div></div>
+  <form #customerForm="ngForm" (ngSubmit)="saveCustomer()">
+    <div class="form-grid">
+      <label>Nombre *<input name="firstName" [(ngModel)]="form.firstName" required maxlength="80" /></label>
+      <label>Apellido *<input name="lastName" [(ngModel)]="form.lastName" required maxlength="80" /></label>
+      <label>Tipo de documento *<select name="documentType" [(ngModel)]="form.documentType" required><option>Cédula</option><option>RUC</option><option>Pasaporte</option><option>Otro</option></select></label>
+      <label>Número de documento *<input name="documentNumber" [(ngModel)]="form.documentNumber" required maxlength="24" /></label>
+      <label>Correo electrónico<input name="email" type="email" [(ngModel)]="form.email" maxlength="254" /></label>
+      <label>Teléfono<input name="phone" type="tel" [(ngModel)]="form.phone" maxlength="24" /></label>
+      <label>Edad<input name="age" type="number" [(ngModel)]="form.age" min="18" max="120" /></label>
+      <label class="wide">Dirección<input name="address" [(ngModel)]="form.address" maxlength="240" /></label>
+    </div>
+    <div class="form-actions"><button class="secondary-button" type="button" (click)="showForm = false">Cancelar</button><button class="primary-button" type="submit" [disabled]="customerForm.invalid || isSaving">{{ isSaving ? 'Guardando…' : 'Guardar cliente' }}</button></div>
+  </form>
+</section>
+
+<section class="content-card">
+  <div class="toolbar">
+    <div><h2>Directorio de clientes</h2><p>{{ customers.length }} clientes</p></div>
+    <form class="search-form" (ngSubmit)="loadCustomers()"><input name="search" [(ngModel)]="search" placeholder="Buscar nombre o documento" /><button class="secondary-button" type="submit">Buscar</button></form>
+  </div>
+  <div class="loading" *ngIf="isLoading">Cargando clientes…</div>
+  <div class="table-scroll" *ngIf="!isLoading && customers.length">
+    <table><thead><tr><th>Cliente</th><th>Documento</th><th>Contacto</th><th>Registrado</th><th></th></tr></thead>
+      <tbody><tr *ngFor="let customer of customers">
+        <td class="reference">{{ customer.fullName }}</td><td>{{ customer.documentType }} · {{ customer.documentNumber }}</td>
+        <td>{{ customer.email || customer.phone || '—' }}</td><td>{{ customer.createdAtUtc | date:'d MMM y' }}</td>
+        <td class="actions"><button type="button" (click)="editCustomer(customer)">Editar</button><button class="danger-link" type="button" (click)="deleteCustomer(customer)">Eliminar</button></td>
+      </tr></tbody>
+    </table>
+  </div>
+  <div class="empty-state" *ngIf="!isLoading && !customers.length">No se encontraron clientes.</div>
+</section>

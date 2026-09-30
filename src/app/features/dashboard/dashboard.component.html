@@ -1,0 +1,62 @@
+<header class="page-header">
+  <div>
+    <p class="eyebrow">RESUMEN DEL NEGOCIO</p>
+    <h1>Hola, {{ auth.currentUser()?.fullName || 'bienvenido de nuevo' }}</h1>
+    <p class="subheading">Así va la operación de Firmeza este mes.</p>
+  </div>
+  <span class="date-chip">{{ today | date:'d MMM y' }}</span>
+</header>
+
+<div class="alert error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</div>
+<div class="loading" *ngIf="isLoading">Cargando indicadores…</div>
+
+<ng-container *ngIf="dashboard as data">
+  <section class="stats-grid" aria-label="Indicadores principales">
+    <article class="stat-card">
+      <span class="stat-icon green">↗</span>
+      <p>Ingresos del mes</p>
+      <h2>{{ data.monthlyRevenue | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</h2>
+      <small>{{ data.monthlySaleCount }} ventas registradas</small>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon blue">▦</span>
+      <p>Productos activos</p>
+      <h2>{{ data.productCount | number }}</h2>
+      <small>En el catálogo actual</small>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon orange">♙</span>
+      <p>Clientes</p>
+      <h2>{{ data.customerCount | number }}</h2>
+      <small>Registrados en el sistema</small>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon purple">▤</span>
+      <p>Ventas del mes</p>
+      <h2>{{ data.monthlySaleCount | number }}</h2>
+      <small>Transacciones procesadas</small>
+    </article>
+  </section>
+
+  <section class="content-card">
+    <div class="section-heading">
+      <div><h2>Ventas recientes</h2><p>Últimas transacciones del negocio</p></div>
+      <a routerLink="/sales">Ver ventas</a>
+    </div>
+    <div class="table-scroll" *ngIf="data.recentSales.length; else noSales">
+      <table>
+        <thead><tr><th>Referencia</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th class="numeric">Total</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let sale of data.recentSales">
+            <td class="reference">{{ sale.reference }}</td>
+            <td>{{ sale.customer }}</td>
+            <td>{{ sale.createdAtUtc | date:'d MMM y, h:mm a' }}</td>
+            <td><span class="status">{{ sale.status }}</span></td>
+            <td class="numeric">{{ sale.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noSales><div class="empty-state">Todavía no hay ventas registradas.</div></ng-template>
+  </section>
+</ng-container>

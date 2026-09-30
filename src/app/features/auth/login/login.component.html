@@ -1,0 +1,98 @@
+<div class="login-shell">
+  <div class="login-panel">
+    <div class="login-visual">
+      <div class="visual-grid" aria-hidden="true"></div>
+      <div class="visual-glow glow-one" aria-hidden="true"></div>
+      <div class="visual-glow glow-two" aria-hidden="true"></div>
+      <div class="visual-topline"><span class="visual-brand"><span class="mini-mark">F</span> FIRMEZA</span><span class="secure-label"><span></span> Plataforma segura</span></div>
+      <div class="blueprint-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <svg viewBox="0 0 620 420" role="presentation">
+          <defs>
+            <linearGradient id="buildingFill" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#7dc5ff" stop-opacity=".27" />
+              <stop offset="1" stop-color="#2468b2" stop-opacity=".08" />
+            </linearGradient>
+            <linearGradient id="lineGlow" x1="0" x2="1">
+              <stop offset="0" stop-color="#75c5ff" />
+              <stop offset="1" stop-color="#d5f0ff" />
+            </linearGradient>
+          </defs>
+          <path class="blueprint-line" d="M34 348H588M78 365H537M112 381H474" />
+          <path class="building-shape" d="M114 344V166L302 73l190 93v178H114Z" />
+          <path class="building-outline" d="M114 344V166L302 73l190 93v178M88 176l214-109 218 109M302 73v271" />
+          <path class="building-outline secondary-line" d="M145 182h119v66H145zM340 182h130v66H340zM145 274h119v70M340 274h130v70" />
+          <path class="building-outline secondary-line" d="M174 182v66m30-66v66m30-66v66m137-66v66m33-66v66m33-66v66" />
+          <path class="building-outline" d="M286 344v-77h34v77M128 158l174-85 177 85M97 162l-9 14m440-14 10 14" />
+          <path class="crane-line" d="M388 65V34h142M474 34v19m56-19v34m-142-3h118m-103 0-12 20m87-20 13 20" />
+          <circle class="signal signal-a" cx="302" cy="74" r="5" />
+          <circle class="signal signal-b" cx="492" cy="166" r="4" />
+        </svg>
+        <div class="floating-card inventory-card"><span class="card-icon">↗</span><span><small>OPERACIÓN EN LÍNEA</small><strong>Todo bajo control</strong></span><span class="pulse-dot"></span></div>
+        <div class="floating-card stock-card"><span class="stock-bars"><i></i><i></i><i></i><i></i></span><span><small>INVENTARIO</small><strong>Actualizado</strong></span></div>
+      </div>
+      <div class="brand-block">
+        <h1>Tu negocio,<br /><span>en buenas manos.</span></h1>
+        <p class="subtitle">
+          Ventas, clientes e inventario conectados en un espacio creado para avanzar.
+        </p>
+        <div class="visual-footer"><span>01</span><span class="footer-line"></span><span>Controla. Crece. Construye.</span></div>
+      </div>
+    </div>
+
+    <div class="login-form-wrap">
+      <div class="login-card">
+        <div class="card-header">
+          <span class="badge"><span class="badge-dot"></span> ACCESO ADMINISTRATIVO</span>
+          <h2>Qué bueno verte.</h2>
+          <p class="form-intro">Ingresa tus datos para continuar a tu espacio de trabajo.</p>
+        </div>
+
+        <form (ngSubmit)="submit()" #loginForm="ngForm">
+          <label>
+            <span>Correo electrónico</span>
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              required
+              autocomplete="email"
+              placeholder="correo@empresa.com"
+            />
+          </label>
+
+          <label>
+            <span>Contraseña</span>
+            <input
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              required
+              autocomplete="current-password"
+              placeholder="Tu contraseña"
+            />
+          </label>
+
+          <div class="helper-row">
+            <span>Modo administrador</span>
+            <label class="remember-option">
+              <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe" />
+              Mantener sesión
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="isSubmitting || loginForm.invalid"
+          >
+            {{ isSubmitting ? "Ingresando..." : "Entrar al panel" }}
+          </button>
+
+          <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

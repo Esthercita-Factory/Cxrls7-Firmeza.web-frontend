@@ -1,0 +1,33 @@
+<header class="page-header">
+  <div><p class="eyebrow">INFORMACIÓN DEL NEGOCIO</p><h1>Reportes</h1><p class="subheading">Descarga reportes operativos o importa datos desde Excel.</p></div>
+</header>
+
+<p class="notice error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+<section class="report-grid">
+  <article class="content-card">
+    <span class="card-icon">▤</span>
+    <h2>Exportar información</h2>
+    <p>Genera los informes actuales en Excel o PDF.</p>
+    <div class="export-list">
+      <div class="export-row"><strong>Productos</strong><span><a href="/api/reports/products?format=xlsx">Excel</a><a href="/api/reports/products?format=pdf">PDF</a></span></div>
+      <div class="export-row"><strong>Clientes</strong><span><a href="/api/reports/customers?format=xlsx">Excel</a><a href="/api/reports/customers?format=pdf">PDF</a></span></div>
+      <div class="export-row"><strong>Ventas</strong><span><a href="/api/reports/sales?format=xlsx">Excel</a><a href="/api/reports/sales?format=pdf">PDF</a></span></div>
+    </div>
+  </article>
+
+  <article class="content-card import-card">
+    <span class="card-icon blue">↑</span>
+    <h2>Importar desde Excel</h2>
+    <p>Sube un libro .xlsx con hojas de productos, clientes o ventas. El límite es 10 MB.</p>
+    <button class="template-link" type="button" (click)="downloadTemplate()">Descargar plantilla de importación</button>
+    <label class="file-picker">Archivo .xlsx<input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" (change)="onFileSelected($event)" /></label>
+    <p class="selected-file" *ngIf="selectedFile">{{ selectedFile.name }}</p>
+    <button class="primary-button" type="button" (click)="importWorkbook()" [disabled]="!selectedFile || isImporting">{{ isImporting ? 'Importando…' : 'Importar archivo' }}</button>
+    <div class="import-result" *ngIf="importResult as result" role="status">
+      <strong>{{ result.successfulRows }} filas procesadas correctamente</strong>
+      <p *ngIf="!result.issues.length">No se encontraron inconsistencias.</p>
+      <div class="issue-list" *ngIf="result.issues.length"><p>{{ result.issues.length }} observaciones:</p><ul><li *ngFor="let issue of result.issues">{{ issue.worksheet }}, fila {{ issue.row }}: {{ issue.message }}</li></ul><button class="template-link" type="button" (click)="downloadIssues()">Descargar inconsistencias CSV</button></div>
+    </div>
+  </article>
+</section>
