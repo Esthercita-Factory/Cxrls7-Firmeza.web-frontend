@@ -1,71 +1,48 @@
-# Firmeza Angular
+# Firmeza — Tienda para clientes
 
-Panel administrativo de Angular 18 conectado a la API REST de ASP.NET Core. Incluye autenticación, dashboard, catálogo de productos, clientes, ventas y reportes. El menú lateral se puede plegar con el botón hamburguesa y conserva el estado; el tema claro/oscuro también se recuerda al volver a entrar.
+SPA Angular 18 para que los clientes de Firmeza puedan crear una cuenta, iniciar sesión, consultar productos disponibles, armar un carrito, completar una compra y recibir o descargar el comprobante PDF.
 
-## Requisitos
-
-- Node.js compatible con Angular 18 y npm.
-- .NET 8 y PostgreSQL según las instrucciones del proyecto backend.
+La interfaz administrativa anterior también está disponible en esta SPA en `/admin/login`, separada del storefront cliente. Usa sesión por cookie y conserva dashboard, productos, clientes, ventas y reportes; el backend exige el rol `Administrador` en esas rutas.
 
 ## Desarrollo local
 
-1. Inicia PostgreSQL y el backend ASP.NET Core en `http://localhost:5080`; el backend aplica las migraciones al arrancar. Consulta el README del backend para configurar la base de datos y el administrador.
-2. En esta carpeta ejecuta:
+1. Configura y ejecuta la API y PostgreSQL siguiendo el README del backend. El host requiere una clave JWT privada (`Jwt:SigningKey`, mínimo 32 bytes). La configuración de Gmail se hace con secretos, no en el frontend.
+2. Desde esta carpeta ejecuta:
 
    ```bash
    npm ci
    npm start
    ```
 
-3. Abre `http://localhost:4200`. El servidor de desarrollo reenvía `/api` a `http://localhost:5080`.
+3. Abre `http://localhost:4200`. El proxy de desarrollo envía las solicitudes `/api` a `http://localhost:5080`.
 
-La autenticación usa la cookie de ASP.NET Identity y protección antifalsificación con token CSRF; el frontend no guarda credenciales ni tokens en `localStorage`. Para producción, publica el frontend detrás del mismo origen que la API (por ejemplo, con un reverse proxy) y sirve el tráfico exclusivamente por HTTPS. El proxy incluido es solo para desarrollo local.
+## Flujos
 
-## Prueba dockerizada
+- Registro de cliente y acceso automático a la tienda.
+- Inicio de sesión en `/api/auth/customer/login`; la API entrega un JWT con el rol `Cliente`.
+- La tienda y el acceso conservan la identidad visual Firmeza: tipografía Inter, paleta azul y tema claro/oscuro persistente.
+- El token se conserva en `sessionStorage` solo durante la sesión de la pestaña. El interceptor lo envía como `Authorization: Bearer`; al expirar, se elimina y la aplicación redirige al inicio de sesión.
+- El catálogo solo consulta `GET /api/client/catalog`. El carrito calcula subtotal, impuesto según la tasa configurada por la API y total; el servidor vuelve a validar precios, disponibilidad y stock antes de registrar la venta.
+- La tienda cliente tiene inicio en `/`, catálogo completo en `/products` y carrito en `/cart`. El menú de productos es desplegable y el ícono del carrito permanece accesible desde el encabezado.
+- El inicio destaca productos disponibles y con pocas unidades. El contrato actual del catálogo no contiene precio anterior ni porcentaje de descuento; por eso el carrito indica cuando no hay promociones aplicadas y no inventa rebajas.
+- El perfil autenticado está disponible en `/profile`, con datos personales protegidos, actividad reciente y accesos a métodos de pago y reclamaciones; estas dos funciones muestran su estado real y no simulan datos. El historial de pedidos está en `/purchases`, con descarga del comprobante PDF.
+- Los importes del storefront y del panel administrativo se muestran en pesos colombianos (COP).
+- Las imágenes opcionales se configuran por producto desde el panel administrativo mediante una URL HTTPS; la API las devuelve en el catálogo público de clientes.
+- El comprobante PDF se obtiene desde una ruta del cliente y la API verifica que la venta pertenezca a la cuenta autenticada.
+- La tienda cliente no incluye ni consume rutas de dashboard, inventario administrativo, gestión de usuarios, roles, clientes administrativos o reportes.
+- El módulo `/admin` consume las rutas administrativas únicamente después de autenticarse con una cuenta del rol `Administrador`; sus rutas y sesión son independientes del acceso JWT de clientes.
 
-Desde la carpeta del backend, ejecuta:
+El almacenamiento web puede ser leído por JavaScript de la misma página; por ello, usa HTTPS en despliegue y evita introducir scripts de terceros no confiables. El token no se escribe en `localStorage`.
 
-```bash
-docker compose up --build
-```
+## Correo electrónico
 
-Este stack levanta Angular detrás de Nginx, la API .NET y un PostgreSQL local de prueba. No configura ni requiere conectarse a una base de datos externa. Abre `http://localhost:4200`; Nginx sirve Angular y reenvía `/api` a la API dentro de la red Docker. La API crea el esquema mediante migraciones y carga la cuenta administrativa configurada por Compose al iniciar.
+La API envía el comprobante y la notificación de registro por SMTP. El frontend comunica claramente si el envío tuvo éxito; si SMTP no está configurado o falla, el pedido no se pierde y el PDF sigue disponible para descargar. Consulta las instrucciones del backend para Gmail y contraseñas de aplicación. Las credenciales SMTP nunca deben colocarse en Angular.
 
-Para detener los servicios conserva los datos del PostgreSQL local:
-
-```bash
-docker compose down
-```
-
-Para borrar también los datos de prueba y empezar con una base vacía:
-
-```bash
-docker compose down -v
-```
-
-Ese último comando elimina los volúmenes de PostgreSQL y recibos de este stack. Úsalo solo si no necesitas conservar esos datos.
-
-## API usada
-
-| Método | Ruta | Uso |
-|---|---|---|
-| GET | `/api/auth/csrf` | Obtener token antifalsificación |
-| POST | `/api/auth/login` | Iniciar sesión administrativa |
-| GET | `/api/auth/me` | Consultar la sesión actual |
-| POST | `/api/auth/logout` | Cerrar sesión |
-| GET/POST/PUT/DELETE | `/api/products` | Catálogo e inventario |
-| GET/POST/PUT/DELETE | `/api/customers` | Directorio de clientes |
-| GET/POST | `/api/sales` | Historial y registro de ventas |
-| GET | `/api/sales/{id}/receipt` | Recibo PDF |
-| GET | `/api/dashboard` | Indicadores y ventas recientes |
-| GET | `/api/reports/{products\|customers\|sales}` | Exportar Excel o PDF |
-| GET/POST | `/api/reports/import/...` | Plantilla e importación Excel |
-
-Todas las rutas, excepto `csrf` y `login`, requieren una sesión del rol Administrador. Las operaciones que modifican datos exigen el token CSRF enviado en `X-CSRF-TOKEN`.
-
-## Build y pruebas
+## Pruebas y compilación
 
 ```bash
 npm run build
 npm test -- --watch=false
 ```
+
+Las pruebas unitarias verifican los flujos de autenticación de cliente y administrador, el cambio de tema y los cálculos y límites de stock del carrito.

@@ -1,95 +1,94 @@
-import { provideHttpClient } from '@angular/common/http';
+import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
+import { HttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
+import { apiInterceptor } from '../http/api.interceptor';
 import { AuthService } from './auth.service';
-import { CsrfTokenService } from './csrf-token.service';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let csrfToken: CsrfTokenService;
   let http: HttpTestingController;
 
   beforeEach(() => {
+    sessionStorage.clear();
     TestBed.configureTestingModule({
-      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(withInterceptors([apiInterceptor])),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(AuthService);
-    csrfToken = TestBed.inject(CsrfTokenService);
     http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => http.verify());
-
-  it('uses the backend session endpoint and publishes the authenticated user', () => {
-    const user = {
-      email: 'admin@example.com',
-      role: 'Administrador',
-      fullName: 'Admin Firmeza',
-    };
-
-    csrfToken.getToken().subscribe();
-    http.expectOne('/api/auth/csrf').flush({ token: 'anonymous-csrf-token' });
-
-    service.login(user.email, 'secret', true).subscribe((response) => {
-      expect(response).toEqual(user);
-      expect(service.currentUser()).toEqual(user);
-    });
-
-    const request = http.expectOne('/api/auth/login');
-    expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual({
-      email: user.email,
-      password: 'secret',
-      rememberMe: true,
-    });
-    request.flush(user);
-
-    csrfToken.getToken().subscribe((token) => expect(token).toBe('authenticated-csrf-token'));
-    http.expectOne('/api/auth/csrf').flush({ token: 'authenticated-csrf-token' });
+  afterEach(() => {
+    http.verify();
+    sessionStorage.clear();
   });
 
-  it('clears the in-memory user when the session has expired', () => {
-    service.currentUser.set({
-      email: 'admin@example.com',
-      role: 'Administrador',
-      fullName: 'Admin Firmeza',
+  it('stores a customer JWT in session storage after successful sign-in', () => {
+    const token = createToken(Date.now() + 60_000);
+    let signedIn = false;
+
+    service.login('cliente@example.com', 'password').subscribe(() => {
+      signedIn = true;
     });
 
-    service.loadCurrentUser().subscribe((user) => {
-      expect(user).toBeNull();
-      expect(service.currentUser()).toBeNull();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
+    const request = http.expectOne('/api/auth/customer/login');
+    expect(request.request.headers.get('X-CSRF-TOKEN')).toBe('csrf-token');
+    request.flush({
+      accessToken: token,
+      expiresAtUtc: new Date(Date.now() + 60_000).toISOString(),
+      user: { email: 'cliente@example.com', fullName: 'Ana Cliente', role: 'Cliente' },
     });
 
-    http.expectOne('/api/auth/me').flush(null, { status: 401, statusText: 'Unauthorized' });
+    expect(signedIn).toBeTrue();
+    expect(sessionStorage.getItem('firmeza.customer.accessToken')).toBe(token);
+    expect(service.currentUser()?.role).toBe('Cliente');
+    expect(service.isAuthenticated()).toBeTrue();
+
+    TestBed.inject(HttpClient).post('/api/client/checkout', {}).subscribe();
+    const csrfRequest = http.expectOne('/api/auth/csrf');
+    expect(csrfRequest.request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+    csrfRequest.flush({ token: 'authenticated-csrf-token' });
+    const checkoutRequest = http.expectOne('/api/client/checkout');
+    expect(checkoutRequest.request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+    expect(checkoutRequest.request.headers.get('X-CSRF-TOKEN')).toBe('authenticated-csrf-token');
+    checkoutRequest.flush({});
   });
 
-  it('refreshes the CSRF token before ending the server session', () => {
-    service.currentUser.set({
-      email: 'admin@example.com',
-      role: 'Administrador',
-      fullName: 'Admin Firmeza',
+  it('clears the customer session and redirects when the JWT expires', fakeAsync(() => {
+    const token = createToken(Date.now() + 1_000);
+    let navigated = false;
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigateByUrl').and.callFake(() => {
+      navigated = true;
+      return Promise.resolve(true);
     });
 
-    service.logout().subscribe(() => {
-      expect(service.currentUser()).toBeNull();
+    service.login('cliente@example.com', 'password').subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
+    http.expectOne('/api/auth/customer/login').flush({
+      accessToken: token,
+      expiresAtUtc: new Date(Date.now() + 1_000).toISOString(),
+      user: { email: 'cliente@example.com', fullName: 'Ana Cliente', role: 'Cliente' },
     });
 
-    http.expectOne('/api/auth/csrf').flush({ token: 'fresh-csrf-token' });
-    const request = http.expectOne('/api/auth/logout');
-    expect(request.request.method).toBe('POST');
-    request.flush(null);
-
-    csrfToken.getToken().subscribe((token) => expect(token).toBe('anonymous-csrf-token'));
-    http.expectOne('/api/auth/csrf').flush({ token: 'anonymous-csrf-token' });
-  });
-
-  it('clears the CSRF token after logout when the session has already expired', () => {
-    service.logout().subscribe();
-
-    http.expectOne('/api/auth/csrf').flush({ token: 'authenticated-csrf-token' });
-    http.expectOne('/api/auth/logout').flush(null, { status: 401, statusText: 'Unauthorized' });
-
-    csrfToken.getToken().subscribe((token) => expect(token).toBe('anonymous-csrf-token'));
-    http.expectOne('/api/auth/csrf').flush({ token: 'anonymous-csrf-token' });
-  });
+    tick(1_000);
+    expect(service.currentUser()).toBeNull();
+    expect(sessionStorage.getItem('firmeza.customer.accessToken')).toBeNull();
+    expect(navigated).toBeTrue();
+    flush();
+  }));
 });
+
+function createToken(expiration: number): string {
+  const payload = btoa(JSON.stringify({
+    exp: Math.floor(expiration / 1000),
+    role: 'Cliente',
+  }));
+  return `header.${payload}.signature`;
+}

@@ -1,0 +1,124 @@
+<main class="auth-page">
+  <div class="auth-topbar">
+    <a class="brand" routerLink="/" aria-label="Firmeza, ir al catálogo">
+      <span class="brand-mark">F</span>
+      <span>FIRMEZA<small>MATERIALES PARA CONSTRUIR</small></span>
+    </a>
+    <button
+      class="theme-toggle"
+      type="button"
+      (click)="theme.toggleTheme()"
+      [attr.aria-pressed]="theme.isDarkMode()"
+      [attr.aria-label]="theme.isDarkMode() ? 'Activar modo claro' : 'Activar modo oscuro'"
+    >
+      <span aria-hidden="true">{{ theme.isDarkMode() ? '☼' : '◐' }}</span>
+      <span>{{ theme.isDarkMode() ? 'Modo claro' : 'Modo oscuro' }}</span>
+    </button>
+  </div>
+
+  <section class="auth-card">
+    <div class="auth-illustration" aria-hidden="true">
+      <span class="illustration-tag">CALIDAD QUE CONSTRUYE</span>
+      <div class="illustration-house">
+        <span class="roof"></span>
+        <span class="house-body"><i></i><i></i><b></b></span>
+      </div>
+      <p>Todo lo que necesitas<br />para hacer realidad tus proyectos.</p>
+    </div>
+
+    <div class="auth-form">
+      <span class="eyebrow">{{ mode === 'login' ? 'TU ESPACIO FIRMEZA' : 'ÚNETE A FIRMEZA' }}</span>
+      <h1>{{ mode === 'login' ? 'Qué bueno verte.' : 'Crea tu cuenta.' }}</h1>
+      <p class="form-copy">
+        {{ mode === 'login'
+          ? 'Inicia sesión para continuar con tus compras.'
+          : 'Regístrate y encuentra materiales para tu próximo proyecto.' }}
+      </p>
+
+      <form (ngSubmit)="submit(authForm)" (input)="errorMessage = ''" (change)="errorMessage = ''" #authForm="ngForm">
+        <div class="form-grid" *ngIf="mode === 'register'">
+          <label>
+            <span>Nombres</span>
+            <input name="firstName" [(ngModel)]="firstName" required maxlength="80" autocomplete="given-name" />
+          </label>
+          <label>
+            <span>Apellidos</span>
+            <input name="lastName" [(ngModel)]="lastName" required maxlength="80" autocomplete="family-name" />
+          </label>
+          <label>
+            <span>Tipo de documento</span>
+            <select name="documentType" [(ngModel)]="documentType" required>
+              <option value="Cédula">Cédula</option>
+              <option value="RUC">RUC</option>
+              <option value="Pasaporte">Pasaporte</option>
+            </select>
+          </label>
+          <label>
+            <span>Número de documento</span>
+            <input name="documentNumber" [(ngModel)]="documentNumber" required maxlength="24" autocomplete="off" />
+          </label>
+          <label class="full-width">
+            <span>Teléfono <small>(opcional)</small></span>
+            <input name="phone" [(ngModel)]="phone" maxlength="24" autocomplete="tel" />
+          </label>
+        </div>
+
+        <label>
+          <span>Correo electrónico</span>
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            required
+            maxlength="254"
+            autocomplete="email"
+            placeholder="tu@correo.com"
+          />
+        </label>
+        <label>
+          <span>Contraseña</span>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            required
+            [minlength]="mode === 'register' ? 10 : 1"
+            maxlength="100"
+            [autocomplete]="mode === 'login' ? 'current-password' : 'new-password'"
+          />
+        </label>
+        <label *ngIf="mode === 'register'">
+          <span>Confirma tu contraseña</span>
+          <input
+            type="password"
+            name="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            required
+            minlength="10"
+            maxlength="100"
+            autocomplete="new-password"
+          />
+        </label>
+
+        <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+        <p class="form-hint" *ngIf="mode === 'register' && !errorMessage">
+          Completa los campos obligatorios. La contraseña debe tener al menos 10 caracteres.
+        </p>
+        <button class="primary-button" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting
+            ? 'Un momento...'
+            : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta' }}
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
+
+      <p class="switch-mode" *ngIf="mode === 'login'">
+        ¿Aún no tienes cuenta? <a routerLink="/register">Regístrate aquí</a>
+      </p>
+      <p class="switch-mode" *ngIf="mode === 'register'">
+        ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a>
+      </p>
+      <a class="back-link" routerLink="/">← Volver al catálogo</a>
+    </div>
+  </section>
+</main>

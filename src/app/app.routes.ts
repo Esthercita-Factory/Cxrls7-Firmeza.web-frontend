@@ -1,17 +1,27 @@
 import { Routes } from '@angular/router';
+import { CustomerAuthComponent } from './features/auth/customer-auth.component';
+import { StorefrontComponent } from './features/storefront/storefront.component';
+import { AdminLayoutComponent } from './features/admin-layout/admin-layout.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { AdminLayoutComponent } from './features/admin-layout/admin-layout.component';
-import { authGuard } from './core/guards/auth.guard';
 import { ProductsComponent } from './features/products/products.component';
 import { CustomersComponent } from './features/customers/customers.component';
 import { SalesComponent } from './features/sales/sales.component';
 import { ReportsComponent } from './features/reports/reports.component';
+import { authGuard } from './core/guards/auth.guard';
+import { customerAuthGuard } from './core/guards/customer-auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: '', component: StorefrontComponent },
+  { path: 'products', component: StorefrontComponent },
+  { path: 'cart', component: StorefrontComponent },
+  { path: 'profile', component: StorefrontComponent, canActivate: [customerAuthGuard] },
+  { path: 'purchases', component: StorefrontComponent, canActivate: [customerAuthGuard] },
+  { path: 'login', component: CustomerAuthComponent, data: { mode: 'login' } },
+  { path: 'register', component: CustomerAuthComponent, data: { mode: 'register' } },
+  { path: 'admin/login', component: LoginComponent },
   {
-    path: '',
+    path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [authGuard],
     children: [
@@ -23,5 +33,5 @@ export const routes: Routes = [
       { path: 'reports', component: ReportsComponent },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: '' },
 ];

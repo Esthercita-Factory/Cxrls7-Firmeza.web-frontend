@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AdminAuthService } from '../../../core/services/admin-auth.service';
 import { apiErrorMessage } from '../../../core/utils/api-error';
 
 @Component({
@@ -13,7 +13,7 @@ import { apiErrorMessage } from '../../../core/utils/api-error';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  readonly authService = inject(AuthService);
+  readonly authService = inject(AdminAuthService);
   readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -34,7 +34,7 @@ export class LoginComponent {
     this.errorMessage = '';
 
     this.authService.login(this.email, this.password, this.rememberMe).subscribe({
-      next: () => this.router.navigateByUrl('/dashboard'),
+      next: () => this.router.navigateByUrl('/admin/dashboard'),
       error: (error: unknown) => {
         this.errorMessage = apiErrorMessage(
           error,

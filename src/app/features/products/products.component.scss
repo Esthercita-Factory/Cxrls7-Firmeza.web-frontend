@@ -20,6 +20,11 @@ input:focus, textarea:focus { border-color: var(--accent); outline: 2px solid va
 .wide { grid-column: span 2; }
 .check-field { display: flex; align-items: center; align-self: end; min-height: 40px; }
 .check-field input { width: auto; accent-color: var(--accent); }
+.image-preview { display: flex; align-items: center; min-height: 96px; }
+.image-preview img { width: 120px; height: 88px; border: 1px solid var(--panel-border); border-radius: 10px; object-fit: cover; }
+.form-grid label small { color: var(--text-muted); font-size: .7rem; font-weight: 400; }
+.product-cell { display: inline-flex; align-items: center; gap: 9px; }
+.product-cell img { width: 36px; height: 36px; border-radius: 7px; object-fit: cover; }
 .form-actions { justify-content: flex-end; margin-top: 18px; }
 .toolbar { margin-bottom: 20px; }
 .search-form { display: flex; gap: 8px; width: min(100%, 390px); }

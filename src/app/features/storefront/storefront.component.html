@@ -1,0 +1,433 @@
+<div class="store-shell">
+  <header class="site-header">
+    <a class="brand" routerLink="/" aria-label="Firmeza, inicio">
+      <span class="brand-mark">F</span>
+      <span>FIRMEZA<small>MATERIALES PARA CONSTRUIR</small></span>
+    </a>
+
+    <div class="session-nav">
+      <button
+        class="theme-toggle"
+        type="button"
+        (click)="theme.toggleTheme()"
+        [attr.aria-pressed]="theme.isDarkMode()"
+        [attr.aria-label]="theme.isDarkMode() ? 'Activar modo claro' : 'Activar modo oscuro'"
+      >
+        <span aria-hidden="true">{{ theme.isDarkMode() ? '☼' : '◐' }}</span>
+        <span class="theme-toggle-label">{{ theme.isDarkMode() ? 'Modo claro' : 'Modo oscuro' }}</span>
+      </button>
+      <ng-container *ngIf="auth.currentUser() as user; else anonymous">
+        <span class="welcome-name">Hola, {{ user.fullName }}</span>
+      </ng-container>
+      <ng-template #anonymous>
+        <a class="sign-in-link" routerLink="/login">Iniciar sesión</a>
+        <a class="header-cta" routerLink="/register">Crear cuenta</a>
+      </ng-template>
+      <div class="products-menu">
+        <button
+          class="home-menu-trigger"
+          type="button"
+          (click)="toggleProductsMenu()"
+          [attr.aria-expanded]="productsMenuOpen()"
+          aria-haspopup="true"
+          aria-label="Abrir navegación de la tienda"
+          title="Navegación de la tienda"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" />
+          </svg>
+        </button>
+        <div class="products-menu-panel" *ngIf="productsMenuOpen()">
+          <a routerLink="/">Volver al inicio</a>
+          <a routerLink="/products">Ver todos los productos</a>
+        </div>
+      </div>
+      <div class="account-menu" *ngIf="auth.currentUser() as user">
+        <button
+          class="account-menu-trigger"
+          type="button"
+          (click)="toggleAccountMenu()"
+          [attr.aria-expanded]="accountMenuOpen()"
+          aria-haspopup="true"
+          aria-label="Abrir menú de perfil"
+          title="Mi cuenta"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+          </svg>
+        </button>
+        <div class="account-menu-panel" *ngIf="accountMenuOpen()">
+          <div class="account-menu-identity">
+            <strong>{{ user.fullName }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+          <a routerLink="/profile">Mi perfil</a>
+          <a routerLink="/purchases">Mis compras</a>
+          <button type="button" (click)="logout()">Cerrar sesión</button>
+        </div>
+      </div>
+      <a class="header-cart" routerLink="/cart" [attr.aria-label]="'Abrir carrito, ' + cart.itemCount() + ' artículos'">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H6" />
+          <circle cx="10" cy="20" r="1.2" />
+          <circle cx="18" cy="20" r="1.2" />
+        </svg>
+        <span class="cart-count">{{ cart.itemCount() }}</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="home-page page-content" *ngIf="page() === 'home'">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow"><i></i> MATERIALES PARA CADA PROYECTO</span>
+          <h1>Construye con<br /><span>confianza.</span></h1>
+          <p>Encuentra materiales de calidad, precios claros y todo listo para llevar tu proyecto más lejos.</p>
+          <a class="hero-cta" routerLink="/products">Explorar productos <span aria-hidden="true">→</span></a>
+          <div class="hero-assurance"><span>✓</span> Compra fácil · Atención cercana · Calidad garantizada</div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="sun"></div>
+          <div class="building">
+            <div class="building-roof"></div>
+            <div class="building-floor floor-top"><i></i><i></i><i></i></div>
+            <div class="building-floor floor-bottom"><i></i><i></i><b></b></div>
+          </div>
+          <div class="plant"><i></i><i></i><b></b></div>
+          <div class="hero-stamp"><strong>F</strong><span>DESDE<br />SIEMPRE</span></div>
+        </div>
+      </div>
+
+      <div
+        class="notice"
+        *ngIf="notice() as message"
+        [class.notice-success]="message.kind === 'success'"
+        [class.notice-warning]="message.kind === 'warning'"
+        [class.notice-info]="message.kind === 'info'"
+        role="status"
+      >
+        <span>{{ message.message }}</span>
+        <button type="button" aria-label="Cerrar aviso" (click)="notice.set(null)">×</button>
+      </div>
+
+      <section class="featured-section">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">SELECCIÓN FIRMEZA</span>
+            <h2>Lo mejor para tu proyecto</h2>
+            <p>Productos disponibles y materiales con últimas unidades.</p>
+          </div>
+          <a class="text-link" routerLink="/products">Ver catálogo completo <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="loading-state" *ngIf="loading()">Cargando productos...</div>
+        <div class="empty-state" *ngIf="!loading() && errorMessage()">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" class="outline-button" (click)="loadCatalog()">Reintentar</button>
+        </div>
+        <div class="product-grid" *ngIf="!loading() && !errorMessage()">
+          <ng-container *ngFor="let product of featuredProducts(); let i = index">
+            <ng-container *ngTemplateOutlet="productCard; context: { $implicit: product, index: i }"></ng-container>
+          </ng-container>
+          <div class="empty-state" *ngIf="featuredProducts().length === 0">
+            <strong>Estamos preparando el catálogo.</strong>
+            <p>Vuelve pronto para descubrir materiales disponibles.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust-strip" aria-label="Beneficios de comprar en Firmeza">
+        <div><span>01</span><strong>Materiales confiables</strong><small>Disponibilidad actualizada</small></div>
+        <div><span>02</span><strong>Precios transparentes</strong><small>Impuestos calculados antes de pagar</small></div>
+        <div><span>03</span><strong>Compra acompañada</strong><small>Tu comprobante llega a tu correo</small></div>
+      </section>
+    </section>
+
+    <section class="catalog-page page-content" *ngIf="page() === 'products'">
+      <div class="page-intro">
+        <div>
+          <span class="eyebrow">CATÁLOGO FIRMEZA</span>
+          <h1>Materiales para construir.</h1>
+          <p>Explora todos los productos disponibles y encuentra lo que necesitas para tu próximo proyecto.</p>
+        </div>
+        <label class="search-box">
+          <span class="visually-hidden">Buscar productos</span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            placeholder="Buscar materiales..."
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+          />
+        </label>
+      </div>
+
+      <div class="catalog-meta" *ngIf="!loading() && !errorMessage()">
+        <span>{{ filteredProducts().length }} productos disponibles</span>
+        <span>Precios en COP</span>
+      </div>
+      <div class="loading-state" *ngIf="loading()">Cargando productos...</div>
+      <div class="empty-state" *ngIf="!loading() && errorMessage()">
+        <p>{{ errorMessage() }}</p>
+        <button type="button" class="outline-button" (click)="loadCatalog()">Reintentar</button>
+      </div>
+      <div class="product-grid catalog-grid" *ngIf="!loading() && !errorMessage()">
+        <ng-container *ngFor="let product of filteredProducts(); let i = index">
+          <ng-container *ngTemplateOutlet="productCard; context: { $implicit: product, index: i }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="filteredProducts().length === 0">
+          <strong>No encontramos productos.</strong>
+          <p>Prueba con otro nombre o vuelve más tarde.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cart-page page-content" *ngIf="page() === 'cart'">
+      <div class="page-intro">
+        <div>
+          <span class="eyebrow">TU PEDIDO</span>
+          <h1>Carrito de compras</h1>
+          <p>Revisa tus materiales, cantidades y total antes de confirmar tu compra.</p>
+        </div>
+        <a class="text-link" routerLink="/products"><span aria-hidden="true">←</span> Seguir comprando</a>
+      </div>
+
+      <div
+        class="notice"
+        *ngIf="notice() as message"
+        [class.notice-success]="message.kind === 'success'"
+        [class.notice-warning]="message.kind === 'warning'"
+        [class.notice-info]="message.kind === 'info'"
+        role="status"
+      >
+        <span>{{ message.message }}</span>
+        <button type="button" aria-label="Cerrar aviso" (click)="notice.set(null)">×</button>
+      </div>
+
+      <div class="cart-page-layout">
+        <section class="cart-page-lines" aria-label="Productos en el carrito">
+          <div class="cart-page-heading">
+            <h2>Productos <span>{{ cart.itemCount() }}</span></h2>
+            <span>Precio por unidad · Total por producto</span>
+          </div>
+
+          <div class="cart-page-empty" *ngIf="cart.items().length === 0 && !checkoutResult">
+            <span class="empty-cart-icon" aria-hidden="true">⌑</span>
+            <strong>Tu carrito está esperando.</strong>
+            <p>Agrega los materiales que necesitas para comenzar.</p>
+            <a class="hero-cta" routerLink="/products">Explorar productos <span aria-hidden="true">→</span></a>
+          </div>
+
+          <article class="cart-page-line" *ngFor="let item of cart.items(); let i = index" [style.--card-index]="i">
+            <div class="cart-product-mark" aria-hidden="true">{{ item.product.name.charAt(0) }}</div>
+            <div class="cart-page-product">
+              <span class="cart-category">{{ item.product.category }}</span>
+              <strong>{{ item.product.name }}</strong>
+              <span class="unit-price">{{ item.product.unitPrice | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }} / {{ item.product.unitOfMeasure }}</span>
+              <div class="quantity-control">
+                <button type="button" (click)="updateQuantity(item.product.id, -1)" [attr.aria-label]="'Quitar una unidad de ' + item.product.name">−</button>
+                <span>{{ item.quantity }}</span>
+                <button type="button" (click)="updateQuantity(item.product.id, 1)" [disabled]="item.quantity >= item.product.stock" [attr.aria-label]="'Agregar una unidad de ' + item.product.name">+</button>
+              </div>
+            </div>
+            <div class="cart-page-line-total">
+              <span>Total producto</span>
+              <strong>{{ item.product.unitPrice * item.quantity | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+              <button type="button" class="remove-button" (click)="removeFromCart(item.product.id)" aria-label="Quitar producto del carrito">Quitar</button>
+            </div>
+          </article>
+
+          <div class="checkout-result" *ngIf="checkoutResult as completed">
+            <span class="success-check" aria-hidden="true">✓</span>
+            <strong>¡Gracias por tu compra!</strong>
+            <span>Pedido {{ completed.sale.reference }} · {{ completed.sale.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+            <p>{{ completed.receiptEmailSent ? 'El comprobante fue enviado a tu correo.' : 'El comprobante está disponible para descargar.' }}</p>
+            <button type="button" class="outline-button" (click)="downloadReceipt()" [disabled]="receiptBusy">
+              {{ receiptBusy ? 'Preparando PDF...' : 'Descargar comprobante PDF' }}
+            </button>
+          </div>
+        </section>
+
+        <aside class="order-summary" *ngIf="cart.items().length > 0">
+          <span class="eyebrow">RESUMEN</span>
+          <h2>Tu compra</h2>
+          <div class="summary-items">
+            <div><span>Subtotal</span><strong>{{ cart.subtotal() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong></div>
+            <div>
+              <span>Descuentos <small>Sin promociones aplicadas</small></span>
+              <strong>{{ 0 | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+            </div>
+            <div><span>Impuestos ({{ cart.taxRate() | percent:'1.0-2' }})</span><strong>{{ cart.tax() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong></div>
+          </div>
+          <div class="summary-total"><span>Total a pagar</span><strong>{{ cart.total() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong></div>
+          <p class="promotion-note">Si hay promociones disponibles, el descuento se mostrará aquí antes de pagar.</p>
+          <button type="button" class="checkout-button" (click)="checkout()" [disabled]="checkoutBusy">
+            {{ checkoutBusy ? 'Procesando compra...' : auth.isAuthenticated() ? 'Confirmar compra' : 'Inicia sesión para comprar' }}
+            <span aria-hidden="true">→</span>
+          </button>
+          <small class="secure-note"><span aria-hidden="true">◆</span> Compra segura · Recibo PDF incluido</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="account-page page-content" *ngIf="page() === 'profile'">
+      <div class="page-intro">
+        <div>
+          <span class="eyebrow">TU ESPACIO FIRMEZA</span>
+          <h1>Hola, {{ customerProfile()?.fullName || auth.currentUser()?.fullName }}.</h1>
+          <p>Un resumen de tu cuenta, tus compras y la actividad reciente.</p>
+        </div>
+        <a class="text-link" routerLink="/purchases">Ver todas mis compras <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="account-loading loading-state" *ngIf="accountLoading()">Cargando tu espacio...</div>
+      <div class="empty-state account-error" *ngIf="!accountLoading() && accountError()">
+        <p>{{ accountError() }}</p>
+        <button type="button" class="outline-button" (click)="loadAccountPage('profile')">Reintentar</button>
+      </div>
+
+      <ng-container *ngIf="!accountLoading() && !accountError() && customerProfile() as profile">
+        <div class="account-stat-grid">
+          <article class="account-stat-card">
+            <span class="account-stat-icon">↗</span>
+            <span>Compras realizadas</span>
+            <strong>{{ customerSales().length }}</strong>
+          </article>
+          <article class="account-stat-card">
+            <span class="account-stat-icon">$</span>
+            <span>Total comprado</span>
+            <strong>{{ totalPurchased() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+          </article>
+          <article class="account-stat-card">
+            <span class="account-stat-icon">✓</span>
+            <span>Cliente desde</span>
+            <strong>{{ profile.registeredAtUtc | date:'MMM y' }}</strong>
+          </article>
+        </div>
+
+        <div class="account-content-grid">
+          <section class="account-panel profile-details">
+            <div class="account-panel-heading">
+              <div><span class="eyebrow">INFORMACIÓN PERSONAL</span><h2>Mis datos</h2></div>
+              <span class="profile-avatar">{{ profile.firstName.charAt(0) }}{{ profile.lastName.charAt(0) }}</span>
+            </div>
+            <dl class="profile-data">
+              <div><dt>Nombre completo</dt><dd>{{ profile.fullName }}</dd></div>
+              <div><dt>Correo electrónico</dt><dd>{{ profile.email }}</dd></div>
+              <div><dt>Documento</dt><dd>{{ profile.documentType }} · {{ profile.maskedDocumentNumber }}</dd></div>
+              <div><dt>Teléfono</dt><dd>{{ profile.phone || 'No registrado' }}</dd></div>
+            </dl>
+          </section>
+
+          <section class="account-panel recent-purchases">
+            <div class="account-panel-heading">
+              <div><span class="eyebrow">TU ACTIVIDAD</span><h2>Compras recientes</h2></div>
+              <a routerLink="/purchases">Ver todas</a>
+            </div>
+            <div class="account-purchase-list" *ngIf="customerSales().length > 0; else noRecentPurchases">
+              <article class="account-purchase" *ngFor="let sale of customerSales().slice(0, 3)">
+                <span class="purchase-check">✓</span>
+                <div><strong>Pedido {{ sale.reference }}</strong><span>{{ sale.createdAtUtc | date:'d MMM y' }} · {{ sale.status }}</span></div>
+                <strong class="purchase-total">{{ sale.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+              </article>
+            </div>
+            <ng-template #noRecentPurchases>
+              <div class="account-empty-note"><strong>Aún no tienes compras.</strong><span>Cuando completes un pedido, aparecerá aquí.</span><a routerLink="/products">Explorar productos →</a></div>
+            </ng-template>
+          </section>
+        </div>
+
+        <div class="account-secondary-grid">
+          <section class="account-panel account-placeholder">
+            <span class="placeholder-icon">▤</span>
+            <div><h2>Métodos de pago</h2><p>Todavía no hay métodos de pago asociados a esta cuenta.</p><small>Por seguridad, no almacenamos datos de tarjetas en este momento.</small></div>
+          </section>
+          <section class="account-panel account-placeholder">
+            <span class="placeholder-icon">♡</span>
+            <div><h2>Reclamaciones</h2><p>El seguimiento de reclamaciones desde tu cuenta aún no está disponible.</p><small>Si necesitas ayuda con una compra, contacta a nuestro equipo de atención.</small></div>
+          </section>
+        </div>
+      </ng-container>
+    </section>
+
+    <section class="account-page page-content" *ngIf="page() === 'purchases'">
+      <div class="page-intro">
+        <div>
+          <span class="eyebrow">HISTORIAL DE PEDIDOS</span>
+          <h1>Mis compras</h1>
+          <p>Consulta los detalles de tus pedidos y descarga sus comprobantes.</p>
+        </div>
+        <a class="text-link" routerLink="/profile"><span aria-hidden="true">←</span> Volver a mi perfil</a>
+      </div>
+
+      <div class="account-loading loading-state" *ngIf="accountLoading()">Cargando tus compras...</div>
+      <div class="empty-state account-error" *ngIf="!accountLoading() && accountError()">
+        <p>{{ accountError() }}</p>
+        <button type="button" class="outline-button" (click)="loadAccountPage('purchases')">Reintentar</button>
+      </div>
+      <div class="account-panel purchase-history" *ngIf="!accountLoading() && !accountError()">
+        <article class="purchase-history-row" *ngFor="let sale of customerSales(); let i = index" [style.--card-index]="i">
+          <span class="purchase-check">✓</span>
+          <div class="purchase-history-info">
+            <strong>Pedido {{ sale.reference }}</strong>
+            <span>{{ sale.createdAtUtc | date:'d MMMM y, h:mm a' }} · {{ sale.status }}</span>
+            <small>{{ sale.details.length }} {{ sale.details.length === 1 ? 'producto' : 'productos' }} · {{ productSummary(sale) }}</small>
+          </div>
+          <strong class="purchase-total">{{ sale.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+          <button type="button" class="outline-button" (click)="downloadSaleReceipt(sale)">Descargar PDF</button>
+        </article>
+        <div class="account-empty-note history-empty" *ngIf="customerSales().length === 0">
+          <span class="placeholder-icon">▧</span>
+          <strong>Aún no tienes compras.</strong>
+          <span>Tu historial se actualizará cuando completes tu primer pedido.</span>
+          <a class="hero-cta" routerLink="/products">Explorar productos <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" routerLink="/"><span class="brand-mark">F</span><span>FIRMEZA</span></a>
+    <span>Materiales para construir tus ideas.</span>
+    <a class="admin-entry" routerLink="/admin/login">Acceso administrativo</a>
+    <span>© 2026 Firmeza</span>
+  </footer>
+</div>
+
+<ng-template #productCard let-product let-index="index">
+  <article class="product-card" [style.--card-index]="index">
+    <div class="product-art" [attr.data-category]="product.category">
+      <img
+        *ngIf="product.imageUrl"
+        [src]="product.imageUrl"
+        [alt]="product.name"
+        loading="lazy"
+        (error)="handleProductImageError($event)"
+      />
+      <div class="material-shape"><span></span><span></span><span></span></div>
+      <span class="category-pill">{{ product.category }}</span>
+      <span class="stock-pill" [class.low-stock-pill]="product.stock <= 5">
+        {{ product.stock <= 5 ? 'Últimas unidades' : 'Disponible' }}
+      </span>
+    </div>
+    <div class="product-content">
+      <div class="product-title-row">
+        <h3>{{ product.name }}</h3>
+        <span class="availability-dot" aria-label="Disponible"></span>
+      </div>
+      <p class="product-description">{{ product.description || 'Material seleccionado para tus proyectos.' }}</p>
+      <div class="product-stock">{{ product.stock }} {{ product.unitOfMeasure }} disponibles</div>
+      <div class="product-bottom">
+        <span class="product-price">{{ product.unitPrice | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+        <button
+          class="add-button"
+          type="button"
+          (click)="addToCart(product)"
+          [attr.aria-label]="'Agregar ' + product.name + ' al carrito'"
+        >+</button>
+      </div>
+    </div>
+  </article>
+</ng-template>

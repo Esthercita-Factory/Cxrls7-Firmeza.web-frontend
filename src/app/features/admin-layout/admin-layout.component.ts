@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AdminAuthService } from '../../core/services/admin-auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { apiErrorMessage } from '../../core/utils/api-error';
 
 @Component({
@@ -12,15 +13,14 @@ import { apiErrorMessage } from '../../core/utils/api-error';
   styleUrl: './admin-layout.component.scss',
 })
 export class AdminLayoutComponent {
-  readonly auth = inject(AuthService);
+  readonly auth = inject(AdminAuthService);
+  readonly theme = inject(ThemeService);
   private readonly router = inject(Router);
   isCollapsed = this.readPreference('firmeza-navigation-collapsed') === 'true';
-  isDarkMode = this.readPreference('firmeza-theme') === 'dark';
   logoutError = '';
   isLoggingOut = false;
 
   constructor() {
-    this.applyTheme();
   }
 
   toggleNavigation(): void {
@@ -29,13 +29,7 @@ export class AdminLayoutComponent {
   }
 
   toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('firmeza-theme', this.isDarkMode ? 'dark' : 'light');
-    this.applyTheme();
-  }
-
-  private applyTheme(): void {
-    document.documentElement.dataset['theme'] = this.isDarkMode ? 'dark' : 'light';
+    this.theme.toggleTheme();
   }
 
   private readPreference(key: string): string | null {
@@ -50,7 +44,7 @@ export class AdminLayoutComponent {
     this.logoutError = '';
     this.isLoggingOut = true;
     this.auth.logout().subscribe({
-      next: () => this.router.navigateByUrl('/login'),
+      next: () => this.router.navigateByUrl('/admin/login'),
       error: (error: unknown) => {
         this.logoutError = apiErrorMessage(error, 'No se pudo cerrar la sesión. Inténtalo de nuevo.');
         this.isLoggingOut = false;

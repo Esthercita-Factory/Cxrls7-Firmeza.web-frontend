@@ -1,7 +1,7 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AdminAuthService } from '../../core/services/admin-auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { Dashboard } from '../../core/models/api.models';
 import { apiErrorMessage } from '../../core/utils/api-error';
@@ -15,7 +15,7 @@ import { apiErrorMessage } from '../../core/utils/api-error';
 })
 export class DashboardComponent implements OnInit {
   private readonly api = inject(ApiService);
-  readonly auth = inject(AuthService);
+  readonly auth = inject(AdminAuthService);
   readonly today = new Date();
   dashboard: Dashboard | null = null;
   isLoading = true;

@@ -30,6 +30,7 @@ export class ProductsComponent implements OnInit {
 
   loadProducts(): void {
     this.isLoading = true;
+    this.errorMessage = '';
     this.api.getProducts(this.search).subscribe({
       next: (products) => { this.products = products; this.isLoading = false; },
       error: (error: unknown) => {
@@ -57,13 +58,15 @@ export class ProductsComponent implements OnInit {
   }
 
   saveProduct(): void {
+    const wasEditing = this.editingId !== null;
     this.isSaving = true;
     this.errorMessage = '';
     this.api.saveProduct(this.form, this.editingId ?? undefined).subscribe({
       next: () => {
         this.showForm = false;
         this.isSaving = false;
-        this.successMessage = this.editingId ? 'Producto actualizado.' : 'Producto creado.';
+        this.search = '';
+        this.successMessage = wasEditing ? 'Producto actualizado.' : 'Producto creado.';
         this.loadProducts();
       },
       error: (error: unknown) => {
@@ -89,10 +92,16 @@ export class ProductsComponent implements OnInit {
     this.errorMessage = '';
   }
 
+  clearSearch(): void {
+    this.search = '';
+    this.loadProducts();
+  }
+
   private emptyProduct(): ProductInput {
     return {
       sku: '',
       name: '',
+      imageUrl: null,
       description: '',
       category: '',
       unitOfMeasure: 'unidad',

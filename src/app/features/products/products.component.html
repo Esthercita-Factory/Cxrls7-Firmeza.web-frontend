@@ -12,6 +12,8 @@
     <div class="form-grid">
       <label>Código SKU<input name="sku" [(ngModel)]="form.sku" required maxlength="32" /></label>
       <label>Nombre<input name="name" [(ngModel)]="form.name" required maxlength="120" /></label>
+      <label class="wide">URL de imagen<input name="imageUrl" type="url" [(ngModel)]="form.imageUrl" maxlength="2048" placeholder="https://..." /><small>Usa una URL HTTPS de una imagen del producto.</small></label>
+      <div class="image-preview wide" *ngIf="form.imageUrl as imageUrl"><img [src]="imageUrl" alt="Vista previa del producto" /></div>
       <label>Categoría<input name="category" [(ngModel)]="form.category" required maxlength="80" /></label>
       <label>Unidad de medida<input name="unitOfMeasure" [(ngModel)]="form.unitOfMeasure" required maxlength="24" /></label>
       <label>Precio unitario<input name="unitPrice" type="number" [(ngModel)]="form.unitPrice" required min="0.01" step="0.01" /></label>
@@ -33,12 +35,16 @@
   <div class="table-scroll" *ngIf="!isLoading && products.length">
     <table><thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Existencias</th><th class="numeric">Precio</th><th></th></tr></thead>
       <tbody><tr *ngFor="let product of products">
-        <td class="reference">{{ product.sku }}</td><td>{{ product.name }}<small class="cell-subtitle">{{ product.unitOfMeasure }}</small></td>
+        <td class="reference">{{ product.sku }}</td><td><span class="product-cell"><img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="''" />{{ product.name }}</span><small class="cell-subtitle">{{ product.unitOfMeasure }}</small></td>
         <td>{{ product.category }}</td><td><span [class.low-stock]="product.stock <= product.minimumStock">{{ product.stock }}</span></td>
         <td class="numeric">{{ product.unitPrice | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
         <td class="actions"><button type="button" (click)="editProduct(product)">Editar</button><button class="danger-link" type="button" (click)="deleteProduct(product)">Desactivar</button></td>
       </tr></tbody>
     </table>
   </div>
-  <div class="empty-state" *ngIf="!isLoading && !products.length">No se encontraron productos.</div>
+  <div class="empty-state" *ngIf="!isLoading && !products.length">
+    <strong>{{ search.trim() ? 'No encontramos productos con esa búsqueda.' : 'Aún no hay productos en el inventario.' }}</strong>
+    <p *ngIf="search.trim()">Prueba con otro nombre o código SKU, o limpia el filtro para volver al inventario completo.</p>
+    <button class="secondary-button" type="button" *ngIf="search.trim()" (click)="clearSearch()">Ver todos los productos</button>
+  </div>
 </section>
