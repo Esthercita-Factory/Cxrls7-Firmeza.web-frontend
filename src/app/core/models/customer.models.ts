@@ -15,6 +15,22 @@ export interface CustomerProfile {
   registeredAtUtc: string;
 }
 
+export interface CustomerProfileUpdate {
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+}
+
+export interface CustomerEmailChangeResponse {
+  message: string;
+  profile: CustomerProfile;
+}
+
+export interface CustomerEmailIdentityVerifiedResponse {
+  message: string;
+  verified: boolean;
+}
+
 export interface CustomerAuthResponse {
   accessToken: string;
   expiresAtUtc: string;
@@ -76,6 +92,39 @@ export interface CustomerSale {
 export interface CheckoutResponse {
   sale: CustomerSale;
   receiptEmailSent: boolean;
+  message: string;
+}
+
+export interface SupportMessage {
+  id: number;
+  senderRole: string;
+  body: string;
+  createdAtUtc: string;
+}
+
+export interface SupportRequest {
+  id: number;
+  customerId: number;
+  customerName: string;
+  customerEmail: string | null;
+  saleId: number | null;
+  saleReference: string | null;
+  subject: string;
+  status: string;
+  createdAtUtc: string;
+  updatedAtUtc: string;
+  messages: SupportMessage[];
+}
+
+export interface CreateSupportRequestResponse {
+  request: SupportRequest;
+  notificationsSent: boolean;
+  message: string;
+}
+
+export interface SupportRequestActionResponse {
+  request: SupportRequest;
+  notificationSent: boolean;
   message: string;
 }
 

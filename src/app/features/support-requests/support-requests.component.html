@@ -1,0 +1,81 @@
+<header class="page-header">
+  <div>
+    <p class="eyebrow">ATENCIÓN AL CLIENTE</p>
+    <h1>Solicitudes de ayuda</h1>
+    <p class="subheading">Revisa los casos, conversa con el cliente y mantén actualizado su seguimiento.</p>
+  </div>
+  <button class="secondary-button" type="button" (click)="loadRequests()" [disabled]="isLoading">Actualizar</button>
+</header>
+
+<p class="notice success" *ngIf="successMessage" role="status">{{ successMessage }}</p>
+<p class="notice error" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+<section class="content-card">
+  <div class="toolbar">
+    <div><h2>Bandeja de atención</h2><p>{{ requests.length }} solicitudes</p></div>
+  </div>
+  <div class="loading" *ngIf="isLoading">Cargando solicitudes...</div>
+  <div class="empty-state" *ngIf="!isLoading && !requests.length">No hay solicitudes de atención por ahora.</div>
+  <article
+    class="support-request"
+    *ngFor="let request of requests"
+    [class.is-compact]="request.status === 'Resuelta' && !isExpanded(request.id)"
+  >
+    <header class="request-heading">
+      <div>
+        <p class="eyebrow">SOLICITUD #{{ request.id }}</p>
+        <h2>{{ request.subject }}</h2>
+      </div>
+      <div class="request-controls">
+        <label class="status-control">Estado
+          <select [name]="'status-' + request.id" [(ngModel)]="request.status" (change)="updateStatus(request)" [disabled]="isSavingId !== null">
+            <option *ngFor="let status of statuses" [ngValue]="status">{{ status }}</option>
+          </select>
+        </label>
+        <button
+          *ngIf="request.status === 'Resuelta'"
+          class="details-toggle"
+          type="button"
+          [attr.aria-expanded]="isExpanded(request.id)"
+          [attr.aria-controls]="'admin-support-details-' + request.id"
+          (click)="toggleDetails(request.id)"
+        >{{ isExpanded(request.id) ? 'Ocultar detalles' : 'Ver detalles' }}</button>
+      </div>
+    </header>
+
+    <div
+      class="request-details"
+      *ngIf="request.status !== 'Resuelta' || isExpanded(request.id)"
+      [id]="'admin-support-details-' + request.id"
+    >
+      <div class="customer-meta">
+        <span>{{ request.customerName }} · {{ request.customerEmail || 'Sin correo registrado' }}</span>
+        <span>{{ request.saleReference ? 'Compra ' + request.saleReference : 'Sin compra asociada' }} · Recibida {{ request.createdAtUtc | date:'d MMM y, h:mm a' }}</span>
+      </div>
+
+      <div class="conversation">
+        <article class="message" *ngFor="let message of request.messages" [class.advisor-message]="message.senderRole === 'Asesor'">
+          <header><strong>{{ message.senderRole === 'Asesor' ? 'Equipo Firmeza' : request.customerName }}</strong><time>{{ message.createdAtUtc | date:'d MMM y, h:mm a' }}</time></header>
+          <p>{{ message.body }}</p>
+        </article>
+      </div>
+
+      <form class="reply-form" (ngSubmit)="sendReply(request)">
+        <label [for]="'advisor-reply-' + request.id">Responder al cliente</label>
+        <textarea
+          [id]="'advisor-reply-' + request.id"
+          [name]="'advisor-reply-' + request.id"
+          [(ngModel)]="replies[request.id]"
+          minlength="10"
+          maxlength="5000"
+          rows="3"
+          required
+          placeholder="Escribe una respuesta clara y útil..."
+        ></textarea>
+        <button class="primary-button" type="submit" [disabled]="!(replies[request.id] || '').trim() || isSavingId !== null">
+          {{ isSavingId === request.id ? 'Enviando...' : 'Enviar respuesta por correo' }}
+        </button>
+      </form>
+    </div>
+  </article>
+</section>

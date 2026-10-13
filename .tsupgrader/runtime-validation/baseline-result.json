@@ -1,0 +1,127 @@
+{
+  "planHash": "a4886e32a9b8cdfca6adcbb09e9cca5d7e3f3e79a9b463a1170cb0e0d2709b16",
+  "phase": "baseline",
+  "recordedAtUtc": "2026-10-13T19:17:32.0929338Z",
+  "retryCount": 0,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": true,
+    "setupDurationMs": 6891,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "app-builds",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\n\u003E frontend@0.0.0 build\n\u003E ng build\n\n\u276F Building...\n\u2714 Building...\nInitial chunk files   | Names         |  Raw size | Estimated transfer size\nmain-PGDNK24L.js      | main          | 503.31 kB |               111.81 kB\npolyfills-FFHMD2TL.js | polyfills     |  34.52 kB |                11.28 kB\nstyles-IGBBGCDT.css   | styles        |  18.40 kB |                 2.23 kB\n\n                      | Initial total | 556.23 kB |               125.33 kB\n\nApplication bundle generation complete. [2.790 seconds]\n\n\u001B[33m\u25B2 \u001B[43;33m[\u001B[43;30mWARNING\u001B[43;33m]\u001B[0m \u001B[1mbundle initial exceeded maximum budget. Budget 512.00 kB was not met by 44.23 kB with a total of 556.23 kB.\u001B[0m\n\n\nOutput location: /home/cohorte5/V\u00EDdeos/Carlos .net/Cxrls7-Firmeza.web-Frontend-master/dist/frontend\n\n",
+        "durationMs": 3575
+      },
+      {
+        "name": "tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": false,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 1,
+        "outputSample": "\n\u003E frontend@0.0.0 test\n\u003E ng test --watch=false --browsers=ChromeHeadless\n\n- Generating browser application bundles (phase: setup)...\n\u2714 Browser application bundle generation complete.\n\u001B[32m13 10 2026 14:17:31.431:INFO [karma-server]: \u001B[39mKarma v6.4.4 server started at http://localhost:9876/\n\u001B[32m13 10 2026 14:17:31.432:INFO [launcher]: \u001B[39mLaunching browsers ChromeHeadless with concurrency unlimited\n\u001B[32m13 10 2026 14:17:31.435:INFO [launcher]: \u001B[39mStarting browser ChromeHeadless\n\u001B[91m13 10 2026 14:17:31.436:ERROR [launcher]: \u001B[39mNo binary for ChromeHeadless browser on your platform.\n  Please, set \u0022CHROME_BIN\u0022 env variable.\n\u2714 Browser application bundle generation complete.\n\u2714 Browser application bundle generation complete.\n",
+        "durationMs": 3329,
+        "testResults": {
+          "testFramework": "jasmine",
+          "runnerDetectedFrom": "package_json",
+          "testsTotal": 0,
+          "testsPassed": 0,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": true
+        }
+      },
+      {
+        "name": "dev-server-serves-home",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\n\u003Chtml lang=\u0022es\u0022\u003E\n\u003Chead\u003E\n  \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\n  \u003Cmeta charset=\u0022utf-8\u0022\u003E\n  \u003Ctitle\u003EFirmeza | Tienda\u003C/title\u003E\n  \u003Cbase href=\u0022/\u0022\u003E\n  \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1\u0022\u003E\n  \u003Clink rel=\u0022icon\u0022 type=\u0022image/x-icon\u0022 href=\u0022favicon.ico\u0022\u003E\n\u003Clink rel=\u0022stylesheet\u0022 href=\u0022styles.css\u0022\u003E\u003C/head\u003E\n\u003Cbody\u003E\n  \u003Capp-root\u003E\u003C/app-root\u003E\n\u003Cscript src=\u0022polyfills.js\u0022 type=\u0022module\u0022\u003E\u003C/script\u003E\u003Cscript src=\u0022main.js\u0022 type=\u0022module\u0022\u003E\u003C/script\u003E\u003C/body\u003E\n\u003C/html\u003E\n",
+        "durationMs": 3
+      }
+    ],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "/home/cohorte5/.nvm/versions/node/v24.19.0/bin/npm",
+        "args": [
+          "ci"
+        ],
+        "cwd": "/home/cohorte5/V\u00EDdeos/Carlos .net/Cxrls7-Firmeza.web-Frontend-master",
+        "env": {},
+        "prependPath": [],
+        "platform": "linux"
+      },
+      {
+        "source": "devServer",
+        "resolvedExecutable": "/home/cohorte5/.nvm/versions/node/v24.19.0/bin/npm",
+        "args": [
+          "start",
+          "--",
+          "--host",
+          "127.0.0.1"
+        ],
+        "cwd": "/home/cohorte5/V\u00EDdeos/Carlos .net/Cxrls7-Firmeza.web-Frontend-master",
+        "env": {},
+        "prependPath": [],
+        "platform": "linux"
+      },
+      {
+        "source": "app-builds",
+        "resolvedExecutable": "/home/cohorte5/.nvm/versions/node/v24.19.0/bin/npm",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "/home/cohorte5/V\u00EDdeos/Carlos .net/Cxrls7-Firmeza.web-Frontend-master",
+        "env": {},
+        "prependPath": [],
+        "platform": "linux"
+      },
+      {
+        "source": "tests-pass",
+        "resolvedExecutable": "/home/cohorte5/.nvm/versions/node/v24.19.0/bin/npm",
+        "args": [
+          "test",
+          "--",
+          "--watch=false",
+          "--browsers=ChromeHeadless"
+        ],
+        "cwd": "/home/cohorte5/V\u00EDdeos/Carlos .net/Cxrls7-Firmeza.web-Frontend-master",
+        "env": {},
+        "prependPath": [],
+        "platform": "linux"
+      },
+      {
+        "source": "dev-server-serves-home",
+        "resolvedExecutable": "/home/cohorte5/.nvm/versions/node/v24.19.0/bin/npm",
+        "args": [
+          "start",
+          "--",
+          "--host",
+          "127.0.0.1"
+        ],
+        "cwd": "/home/cohorte5/V\u00EDdeos/Carlos .net/Cxrls7-Firmeza.web-Frontend-master",
+        "env": {},
+        "prependPath": [],
+        "platform": "linux"
+      }
+    ]
+  }
+}

@@ -102,7 +102,7 @@
 
         <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
         <p class="form-hint" *ngIf="mode === 'register' && !errorMessage">
-          Completa los campos obligatorios. La contraseña debe tener al menos 10 caracteres.
+          Completa los campos obligatorios. La contraseña debe tener al menos 10 caracteres e incluir un número.
         </p>
         <button class="primary-button" type="submit" [disabled]="isSubmitting">
           {{ isSubmitting

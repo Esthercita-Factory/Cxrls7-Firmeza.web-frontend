@@ -294,6 +294,254 @@ textarea:focus-visible {
   color: #ff9ca4;
 }
 
+.support-backdrop {
+  animation: support-backdrop-in .2s ease-out both;
+}
+
+.support-dialog {
+  animation: support-dialog-in .28s cubic-bezier(.2, .75, .25, 1) both;
+}
+
+.store-shell .support-backdrop {
+  animation-duration: .38s;
+}
+
+.store-shell .support-dialog {
+  width: min(100%, 560px);
+  animation-duration: .42s;
+  animation-timing-function: cubic-bezier(.16, 1, .3, 1);
+}
+
+.store-shell .support-dialog-header {
+  align-items: flex-start;
+}
+
+.store-shell .support-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.store-shell .support-heading-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.store-shell .support-heading-icon svg,
+.store-shell .help-icon svg,
+.store-shell .support-heart-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.store-shell .support-dialog-header h2 {
+  margin: 6px 0 0;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.store-shell .support-dialog-header .eyebrow {
+  margin: 0;
+}
+
+.store-shell .support-dialog > .support-intro {
+  margin: 15px 0 24px;
+  line-height: 1.7;
+}
+
+.store-shell .support-form {
+  gap: 18px;
+  margin-top: 0;
+}
+
+.store-shell .support-form > label {
+  gap: 8px;
+  animation: support-option-in .3s ease-out both;
+}
+
+.store-shell .support-form > label:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.store-shell .support-form > label:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.store-shell .support-form select,
+.store-shell .support-form textarea,
+.store-shell .support-reply textarea,
+.store-shell .support-dialog button {
+  transition: border-color .18s ease, background-color .18s ease,
+    box-shadow .18s ease, transform .18s ease, filter .18s ease;
+}
+
+.store-shell .support-form select:hover,
+.store-shell .support-form textarea:hover,
+.store-shell .support-reply textarea:hover {
+  border-color: var(--accent);
+}
+
+.store-shell .support-form select:focus,
+.store-shell .support-form textarea:focus,
+.store-shell .support-reply textarea:focus {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.store-shell .support-dialog button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.store-shell .support-history {
+  margin: 28px 0 36px;
+}
+
+.store-shell .products-menu-panel,
+.store-shell .account-menu-panel {
+  animation: store-menu-arrive .3s cubic-bezier(.2, .75, .25, 1) both;
+}
+
+.store-shell .support-history .account-panel-heading {
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.store-shell .support-history > .support-intro {
+  margin: 0 0 22px;
+  line-height: 1.65;
+}
+
+.store-shell .support-case {
+  animation: support-option-in .28s ease-out both;
+}
+
+.store-shell .support-case-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.store-shell .support-details-toggle {
+  border: 0;
+  padding: 5px 0;
+  background: transparent;
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.store-shell .support-details-toggle:hover {
+  text-decoration: underline;
+}
+
+.store-shell .support-case.is-compact {
+  padding: 12px 0;
+}
+
+.store-shell .support-case.is-compact .support-case-header {
+  align-items: center;
+}
+
+.store-shell .support-request-details {
+  animation: support-details-in .22s ease-out both;
+}
+
+.store-shell .help-button {
+  transition: box-shadow .25s ease, filter .25s ease, transform .25s ease;
+}
+
+.store-shell .help-button:hover {
+  box-shadow: 0 12px 32px #0004;
+}
+
+.store-shell .support-backdrop.is-closing {
+  animation: support-backdrop-in .24s ease-in reverse both;
+}
+
+.store-shell .support-backdrop.is-closing .support-dialog {
+  animation: support-dialog-in .24s cubic-bezier(.7, 0, .84, 0) reverse both;
+}
+
+.store-shell .support-backdrop.is-closing .support-dialog * {
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .store-shell .support-history {
+    margin: 24px 0 30px;
+  }
+
+  .store-shell .support-dialog-header h2 {
+    font-size: 18px;
+  }
+
+  .store-shell .support-case-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .store-shell .support-case.is-compact .support-case-header {
+    align-items: flex-start;
+  }
+}
+
+@keyframes support-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes support-dialog-in {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes support-option-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes store-menu-arrive {
+  from { opacity: 0; transform: translateY(-10px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes support-details-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-backdrop,
+  .support-dialog,
+  .support-form > label,
+  .support-case {
+    animation: none;
+  }
+
+  .support-form select,
+  .support-form textarea,
+  .support-reply textarea,
+  .support-dialog button {
+    transition: none;
+  }
+
+  .store-shell .support-backdrop.is-closing,
+  .store-shell .support-backdrop.is-closing .support-dialog {
+    animation-duration: 1ms;
+  }
+}
+
 .admin-shell .sidebar .signed-in-text,
 .admin-shell .sidebar .brand,
 .admin-shell .sidebar .brand strong {

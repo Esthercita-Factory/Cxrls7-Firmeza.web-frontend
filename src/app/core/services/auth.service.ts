@@ -58,6 +58,15 @@ export class AuthService {
     return this.getAccessToken() !== null && this.currentUser() !== null;
   }
 
+  updateCustomerProfile(email: string, fullName: string): void {
+    const user = this.currentUser();
+    if (!user) return;
+
+    const updatedUser: CustomerUser = { ...user, email, fullName };
+    sessionStorage.setItem(userStorageKey, JSON.stringify(updatedUser));
+    this.currentUser.set(updatedUser);
+  }
+
   clearSession(): void {
     if (this.expiryTimer) clearTimeout(this.expiryTimer);
     sessionStorage.removeItem(tokenStorageKey);
