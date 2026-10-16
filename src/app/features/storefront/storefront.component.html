@@ -313,12 +313,101 @@
               <div><span class="eyebrow">INFORMACIÓN PERSONAL</span><h2>Mis datos</h2></div>
               <span class="profile-avatar">{{ profile.firstName.charAt(0) }}{{ profile.lastName.charAt(0) }}</span>
             </div>
-            <dl class="profile-data">
-              <div><dt>Nombre completo</dt><dd>{{ profile.fullName }}</dd></div>
-              <div><dt>Correo electrónico</dt><dd>{{ profile.email }}</dd></div>
-              <div><dt>Documento</dt><dd>{{ profile.documentType }} · {{ profile.maskedDocumentNumber }}</dd></div>
-              <div><dt>Teléfono</dt><dd>{{ profile.phone || 'No registrado' }}</dd></div>
-            </dl>
+            <p class="profile-form-message" *ngIf="profileMessage()" role="status">{{ profileMessage() }}</p>
+            <form class="profile-edit-form" *ngIf="profileEditing()" (ngSubmit)="saveProfile()" #profileEditForm="ngForm">
+              <label>Nombre
+                <input name="firstName" [(ngModel)]="profileForm.firstName" required maxlength="80" />
+              </label>
+              <label>Apellido
+                <input name="lastName" [(ngModel)]="profileForm.lastName" required maxlength="80" />
+              </label>
+              <label>Teléfono
+                <input name="phone" [(ngModel)]="profileForm.phone" type="tel" maxlength="24" />
+              </label>
+              <div class="profile-form-actions">
+                <button class="outline-button" type="button" (click)="cancelProfileEdit()">Cancelar</button>
+                <button class="profile-action-button" type="submit" [disabled]="profileEditForm.invalid || profileSaving()">
+                  {{ profileSaving() ? 'Guardando...' : 'Guardar cambios' }}
+                </button>
+              </div>
+            </form>
+            <ng-container *ngIf="!profileEditing()">
+              <dl class="profile-data">
+                <div><dt>Nombre completo</dt><dd>{{ profile.fullName }}</dd></div>
+                <div><dt>Correo electrónico</dt><dd>{{ profile.email }}</dd></div>
+                <div><dt>Documento</dt><dd>{{ profile.documentType }} · {{ profile.maskedDocumentNumber }}</dd></div>
+                <div><dt>Teléfono</dt><dd>{{ profile.phone || 'No registrado' }}</dd></div>
+              </dl>
+              <div class="profile-form-actions profile-actions">
+                <button class="profile-action-button" type="button" (click)="startProfileEdit(profile)">Editar datos</button>
+                <button
+                  class="outline-button"
+                  type="button"
+                  (click)="startEmailChange()"
+                  [disabled]="emailChangeBusy()"
+                >
+                  {{ emailChangeStep() === 'requesting' ? 'Enviando código...' : 'Cambiar correo' }}
+                </button>
+              </div>
+            </ng-container>
+            <div class="email-change-form" *ngIf="emailChangeStep() === 'requesting'" role="status">
+              <p>Enviando el código de seguridad al correo asociado a tu cuenta...</p>
+            </div>
+            <form
+              class="email-change-form"
+              *ngIf="emailChangeStep() === 'code'"
+              (ngSubmit)="confirmEmailChange()"
+              #emailCodeForm="ngForm"
+            >
+              <p>Para confirmar que eres el propietario de la cuenta, enviamos un código al correo que tienes asociado actualmente.</p>
+              <p class="profile-form-message" *ngIf="emailChangeMessage()" role="status">{{ emailChangeMessage() }}</p>
+              <label>Código de verificación
+                <input
+                  name="emailCode"
+                  [(ngModel)]="emailChangeCode"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxlength="6"
+                  required
+                />
+              </label>
+              <div class="profile-form-actions">
+                <button class="outline-button" type="button" (click)="cancelEmailChange()">Cancelar</button>
+                <button class="outline-button" type="button" (click)="requestEmailChange()" [disabled]="emailChangeBusy()">
+                  Reenviar código
+                </button>
+                <button class="profile-action-button" type="submit" [disabled]="emailCodeForm.invalid || emailChangeBusy()">
+                  {{ emailChangeBusy() ? 'Verificando...' : 'Verificar código' }}
+                </button>
+              </div>
+            </form>
+            <form
+              class="email-change-form"
+              *ngIf="emailChangeStep() === 'email'"
+              (ngSubmit)="saveNewEmail()"
+              #newEmailForm="ngForm"
+            >
+              <p>Identidad verificada. Ahora puedes ingresar el correo nuevo que quieres usar para iniciar sesión.</p>
+              <label>Nuevo correo electrónico
+                <input
+                  name="newEmail"
+                  [(ngModel)]="emailChangeEmail"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  maxlength="254"
+                />
+              </label>
+              <p class="profile-form-message" *ngIf="emailChangeMessage()" role="status">{{ emailChangeMessage() }}</p>
+              <div class="profile-form-actions">
+                <button class="outline-button" type="button" (click)="cancelEmailChange()">Cancelar</button>
+                <button class="profile-action-button" type="submit" [disabled]="newEmailForm.invalid || emailChangeBusy()">
+                  {{ emailChangeBusy() ? 'Guardando...' : 'Guardar nuevo correo' }}
+                </button>
+              </div>
+            </form>
           </section>
 
           <section class="account-panel recent-purchases">
@@ -344,11 +433,76 @@
             <span class="placeholder-icon">▤</span>
             <div><h2>Métodos de pago</h2><p>Todavía no hay métodos de pago asociados a esta cuenta.</p><small>Por seguridad, no almacenamos datos de tarjetas en este momento.</small></div>
           </section>
-          <section class="account-panel account-placeholder">
-            <span class="placeholder-icon">♡</span>
-            <div><h2>Reclamaciones</h2><p>El seguimiento de reclamaciones desde tu cuenta aún no está disponible.</p><small>Si necesitas ayuda con una compra, contacta a nuestro equipo de atención.</small></div>
-          </section>
         </div>
+        <section class="account-panel support-history">
+          <div class="account-panel-heading">
+            <div><span class="eyebrow">ATENCIÓN PERSONALIZADA</span><h2>Reclamaciones y ayuda</h2></div>
+            <button class="profile-action-button" type="button" (click)="openSupport()">＋ Nueva solicitud</button>
+          </div>
+          <p class="support-intro">Consulta el seguimiento de tus solicitudes y responde directamente a nuestro equipo.</p>
+          <p class="profile-form-message" *ngIf="supportMessage()" role="status">{{ supportMessage() }}</p>
+          <p class="support-error" *ngIf="supportError()" role="alert">{{ supportError() }}</p>
+          <article
+            class="support-case"
+            *ngFor="let request of supportRequests()"
+            [class.is-compact]="request.status === 'Resuelta' && !isSupportRequestExpanded(request.id)"
+          >
+            <header class="support-case-header">
+              <div><strong>Solicitud #{{ request.id }} · {{ request.subject }}</strong>
+                <span>{{ request.saleReference ? 'Compra ' + request.saleReference + ' · ' : '' }}{{ request.createdAtUtc | date:'d MMM y, h:mm a' }}</span>
+              </div>
+              <div class="support-case-actions">
+                <span class="support-status" [attr.data-status]="request.status">{{ request.status }}</span>
+                <button
+                  *ngIf="request.status === 'Resuelta'"
+                  class="support-details-toggle"
+                  type="button"
+                  [attr.aria-expanded]="isSupportRequestExpanded(request.id)"
+                  [attr.aria-controls]="'support-details-' + request.id"
+                  (click)="toggleSupportRequestDetails(request.id)"
+                >{{ isSupportRequestExpanded(request.id) ? 'Ocultar detalles' : 'Ver detalles' }}</button>
+              </div>
+            </header>
+            <div
+              class="support-request-details"
+              *ngIf="request.status !== 'Resuelta' || isSupportRequestExpanded(request.id)"
+              [id]="'support-details-' + request.id"
+            >
+              <div class="support-conversation">
+                <article class="support-message" *ngFor="let message of request.messages" [class.from-advisor]="message.senderRole === 'Asesor'">
+                  <strong>{{ message.senderRole === 'Asesor' ? 'Equipo Firmeza' : 'Tú' }}</strong>
+                  <p>{{ message.body }}</p>
+                  <time>{{ message.createdAtUtc | date:'d MMM y, h:mm a' }}</time>
+                </article>
+              </div>
+              <form class="support-reply" (ngSubmit)="replyToSupportRequest(request)">
+                <label [for]="'support-reply-' + request.id">Responder a esta solicitud</label>
+                <textarea
+                  [id]="'support-reply-' + request.id"
+                  [name]="'support-reply-' + request.id"
+                  [ngModel]="supportReplies[request.id] || ''"
+                  (ngModelChange)="supportReplies[request.id] = $event"
+                  minlength="10"
+                  maxlength="5000"
+                  rows="2"
+                  required
+                  placeholder="Escribe un mensaje para nuestro equipo..."
+                ></textarea>
+                <button class="outline-button" type="submit" [disabled]="!(supportReplies[request.id] || '').trim() || supportReplyBusyId !== null">
+                  {{ supportReplyBusyId === request.id ? 'Enviando...' : 'Enviar respuesta' }}
+                </button>
+              </form>
+            </div>
+          </article>
+          <div class="account-empty-note" *ngIf="supportRequests().length === 0">
+            <span class="placeholder-icon support-heart-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.2-8.8 10.2-8.8 10.2S3.2 14 3.2 8.8A4.6 4.6 0 0 1 12 6.4a4.6 4.6 0 0 1 8.8 2.4Z" /></svg>
+            </span>
+            <strong>¿Necesitas ayuda con una compra?</strong>
+            <span>Cuéntanos qué ocurrió y podrás seguir aquí la respuesta de un asesor.</span>
+            <button class="profile-action-button" type="button" (click)="openSupport()">Contactar a nuestro equipo</button>
+          </div>
+        </section>
       </ng-container>
     </section>
 
@@ -394,6 +548,88 @@
     <a class="admin-entry" routerLink="/admin/login">Acceso administrativo</a>
     <span>© 2026 Firmeza</span>
   </footer>
+
+  <button
+    class="help-button"
+    type="button"
+    (click)="openSupport()"
+    aria-haspopup="dialog"
+    aria-label="Abrir ayuda y atención al cliente"
+  ><span class="help-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-5 4v-4.3A2.5 2.5 0 0 1 4 13.5v-8Z" /><path d="M9.5 8.5a2.5 2.5 0 1 1 4.2 1.8c-.9.8-1.7 1.1-1.7 2.2" /><path d="M12 15.5h.01" /></svg>
+  </span> Ayuda</button>
+
+  <div
+    class="support-backdrop"
+    *ngIf="supportRendered()"
+    [class.is-closing]="supportClosing()"
+    (click)="closeSupport()"
+  >
+    <section
+      class="support-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="support-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="support-dialog-header">
+        <div class="support-dialog-title">
+          <span class="support-heading-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1" /><path d="M4 13h3v6H6a2 2 0 0 1-2-2v-4Zm16 0h-3v6h1a2 2 0 0 0 2-2v-4Z" /><path d="M17 19a5 5 0 0 1-4 2h-1" /></svg>
+          </span>
+          <div><span class="eyebrow">ESTAMOS PARA AYUDARTE</span><h2 id="support-dialog-title">Atención al cliente</h2></div>
+        </div>
+        <button class="support-close" type="button" (click)="closeSupport()" aria-label="Cerrar ayuda">×</button>
+      </header>
+      <p class="support-intro">¿Tienes problemas con alguna compra? Contacta a nuestro equipo. Cuéntanos qué pasó y un asesor te ayudará pronto.</p>
+      <p class="support-success" *ngIf="supportMessage()" role="status">{{ supportMessage() }}</p>
+      <p class="support-error" *ngIf="supportError()" role="alert">{{ supportError() }}</p>
+      <form
+        class="support-form"
+        *ngIf="!supportMessage()"
+        (ngSubmit)="submitSupportRequest()"
+        #supportRequestForm="ngForm"
+      >
+        <label>Compra relacionada <span class="optional-label">Opcional</span>
+          <select name="supportSaleId" [(ngModel)]="supportForm.saleId">
+            <option [ngValue]="null">No está relacionada con una compra</option>
+            <option *ngFor="let sale of customerSales()" [ngValue]="sale.id">Pedido {{ sale.reference }} · {{ sale.createdAtUtc | date:'d MMM y' }}</option>
+          </select>
+        </label>
+        <label>¿Con qué necesitas ayuda?
+          <select name="supportSubject" [(ngModel)]="supportForm.subject" required>
+            <option value="" disabled>Selecciona un tema</option>
+            <option value="Problema con mi pedido">Problema con mi pedido</option>
+            <option value="Producto recibido">Producto recibido</option>
+            <option value="Comprobante o pago">Comprobante o pago</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+        <label>Mensaje
+          <textarea
+            name="supportBody"
+            [(ngModel)]="supportForm.message"
+            minlength="10"
+            maxlength="5000"
+            rows="5"
+            required
+            placeholder="Describe el problema para que podamos ayudarte mejor..."
+          ></textarea>
+          <small>{{ supportForm.message.length }}/5000 caracteres · Evita incluir datos de tarjetas o contraseñas.</small>
+        </label>
+        <div class="support-form-actions">
+          <button class="outline-button" type="button" (click)="closeSupport()">Cerrar</button>
+          <button class="profile-action-button" type="submit" [disabled]="supportRequestForm.invalid || supportSubmitting()">
+            {{ supportSubmitting() ? 'Enviando solicitud...' : 'Enviar a atención al cliente' }}
+          </button>
+        </div>
+      </form>
+      <div class="support-success-actions" *ngIf="supportMessage()">
+        <a routerLink="/profile" (click)="closeSupport()">Ver mis reclamaciones</a>
+        <button class="profile-action-button" type="button" (click)="closeSupport()">Entendido</button>
+      </div>
+    </section>
+  </div>
 </div>
 
 <ng-template #productCard let-product let-index="index">

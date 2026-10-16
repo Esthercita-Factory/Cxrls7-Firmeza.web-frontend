@@ -38,11 +38,15 @@ export class CustomerAuthComponent {
     this.errorMessage = '';
     if (form.invalid) {
       form.control.markAllAsTouched();
-      this.errorMessage = 'Completa los campos obligatorios. La contraseña debe tener al menos 10 caracteres.';
+      this.errorMessage = 'Completa los campos obligatorios. La contraseña debe tener al menos 10 caracteres e incluir un número.';
       return;
     }
     if (this.mode === 'register' && this.password !== this.confirmPassword) {
       this.errorMessage = 'Las contraseñas no coinciden.';
+      return;
+    }
+    if (this.mode === 'register' && !/\d/.test(this.password)) {
+      this.errorMessage = 'La contraseña debe incluir al menos un número.';
       return;
     }
 

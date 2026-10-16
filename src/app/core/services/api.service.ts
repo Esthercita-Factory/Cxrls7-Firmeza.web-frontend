@@ -10,6 +10,7 @@ import {
   Sale,
   SaleInput,
 } from '../models/api.models';
+import { SupportRequest, SupportRequestActionResponse } from '../models/customer.models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -55,6 +56,18 @@ export class ApiService {
 
   createSale(input: SaleInput) {
     return this.http.post<Sale>('/api/sales', input);
+  }
+
+  getSupportRequests() {
+    return this.http.get<SupportRequest[]>('/api/support-requests');
+  }
+
+  updateSupportRequestStatus(id: number, status: string) {
+    return this.http.put<SupportRequestActionResponse>(`/api/support-requests/${id}/status`, { status });
+  }
+
+  replyToSupportRequest(id: number, message: string) {
+    return this.http.post<SupportRequestActionResponse>(`/api/support-requests/${id}/messages`, { message });
   }
 
   getImportTemplate() {

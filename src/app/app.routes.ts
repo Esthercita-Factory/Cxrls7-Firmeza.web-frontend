@@ -8,6 +8,7 @@ import { ProductsComponent } from './features/products/products.component';
 import { CustomersComponent } from './features/customers/customers.component';
 import { SalesComponent } from './features/sales/sales.component';
 import { ReportsComponent } from './features/reports/reports.component';
+import { SupportRequestsComponent } from './features/support-requests/support-requests.component';
 import { authGuard } from './core/guards/auth.guard';
 import { customerAuthGuard } from './core/guards/customer-auth.guard';
 
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'customers', component: CustomersComponent },
       { path: 'sales', component: SalesComponent },
       { path: 'reports', component: ReportsComponent },
+      { path: 'support-requests', component: SupportRequestsComponent },
     ],
   },
   { path: '**', redirectTo: '' },
